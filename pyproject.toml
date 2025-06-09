@@ -1,0 +1,17 @@
+[project]
+name = "ray-serve-demo"
+version = "0.1.0"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "mlflow",
+    "pandas",
+    "scikit-learn",
+    "ipykernel",
+    "virtualenv",
+    "python-dotenv",
+    "catboost",
+    "torch",
+    "ray[serve]",
+    "pip",
+]

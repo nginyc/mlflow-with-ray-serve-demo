@@ -1,0 +1,8 @@
+.venv/
+*.pyc
+__pycache__/
+.DS_Store
+*.env
+mlruns/
+mlartifacts/
+catboost_info/

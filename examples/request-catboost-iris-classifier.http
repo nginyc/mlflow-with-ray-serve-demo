@@ -1,0 +1,37 @@
+POST http://127.0.0.1:8000/catboost-iris-classifier
+Content-Type: application/json
+
+{
+  "data": [
+    {
+        "sepal length (cm)": 6.8,
+        "sepal width (cm)": 3.2,
+        "petal length (cm)": 5.9,
+        "petal width (cm)": 2.3
+    },
+    {
+        "sepal length (cm)": 6.3,
+        "sepal width (cm)": 3.3,
+        "petal length (cm)": 4.7,
+        "petal width (cm)": 1.6
+    },
+    {
+        "sepal length (cm)": 6.4,
+        "sepal width (cm)": 2.8,
+        "petal length (cm)": 5.6,
+        "petal width (cm)": 2.1
+    },
+    {
+        "sepal length (cm)": 5.6,
+        "sepal width (cm)": 2.5,
+        "petal length (cm)": 3.9,
+        "petal width (cm)": 1.1
+    },
+    {
+        "sepal length (cm)": 6.2,
+        "sepal width (cm)": 2.2,
+        "petal length (cm)": 4.5,
+        "petal width (cm)": 1.5
+    }
+  ]
+}
