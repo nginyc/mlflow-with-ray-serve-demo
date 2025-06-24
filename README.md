@@ -1,12 +1,12 @@
 # MLflow x Ray Serve (MLRay) Demo
 
-This is a demo of how [MLflow](https://mlflow.org/) models can be deployed with [Ray Serve](https://docs.ray.io/en/latest/serve/index.html) running on a Ray Cluster deployed on your own VMs. Multiple major Python versions are supported by running multiple Ray Clusters.
+This is a demo of how [MLflow](https://mlflow.org/) models can be deployed with [Ray Serve](https://docs.ray.io/en/latest/serve/index.html) running on Ray Clusters deployed on your own VMs. Multiple major Python versions are supported by running multiple Ray Clusters.
 
-## Running Ray Cluster(s) on VMs
+## Running Ray Clusters on VMs
 
 ### Overview
 
-Each Ray Cluster assumes the same major Python version and Ray version across all its tasks/deployments (see [Ray's documentation on Environment Dependencies](https://docs.ray.io/en/latest/ray-core/handling-dependencies.html)). As such, the Ray team recommends multiple Ray Clusters for each major Python version to be supported (see [Ray's discussion forum](https://discuss.ray.io/t/how-to-use-different-python-versions-in-the-same-cluster/15825)).
+Each Ray Cluster assumes the same major Python version and Ray version across all its tasks/deployments (see [Ray's documentation on Environment Dependencies](https://docs.ray.io/en/latest/ray-core/handling-dependencies.html)). The Ray team recommends multiple Ray Clusters for each major Python version to be supported (see [Ray's discussion forum](https://discuss.ray.io/t/how-to-use-different-python-versions-in-the-same-cluster/15825)).
 
 **Pre-requisites**
 - A list of Python versions to be supported (e.g. `3.9.22` and `3.12.11`)
@@ -23,13 +23,13 @@ For development & testing, you can emulate multiple Linux VM(s) on a single mach
     podman machine inspect
     ```
 
-2. Build a Docker image for each Python version:
+2. Build a Docker image for each Python version e.g.:
     ```sh
     podman build -f docker/ray-serve-py39.Dockerfile -t ray-serve-py39 .
     podman build -f docker/ray-serve-py312.Dockerfile -t ray-serve-py312 .
     ```
 
-3. Run a Ray head node for each Python version:
+3. Run a Ray head node for each Python version e.g.: 
 
     ```sh
     podman network create mlray-net
