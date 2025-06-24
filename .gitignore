@@ -1,4 +1,5 @@
 .venv/
+.venv.*/
 *.pyc
 __pycache__/
 .DS_Store
@@ -6,3 +7,4 @@ __pycache__/
 mlruns/
 mlartifacts/
 catboost_info/
+*.egg-info
