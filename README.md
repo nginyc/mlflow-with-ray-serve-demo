@@ -202,6 +202,8 @@ We demonstrate training and deploying ML models with conflicting library version
 
     ![](examples/ray_serve_deployments.png)
 
+    > Note: If you are running this demo fully locally on Apple Silicon (ARM64) on Podman, you would encounter the error that `catboost==1.1` cannot be installed on the Python 3.9 Ray Cluster. This is because your Ray Cluster would be running on ARM64 version of Ubuntu (to match the host machine's architecture) and CatBoost 1.1 does not have the Linux wheels for the ARM64 architecture :(
+
 5. Verify that the model serving endpoints are working with e.g. REST requests like those in `examples/xxx.request.http`
 
     ![](examples/model_http_request.png)
