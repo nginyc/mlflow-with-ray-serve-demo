@@ -16,7 +16,7 @@ For development & testing, you can emulate multiple Linux VM(s) on a single mach
 
 ### Steps (on a single machine using Podman)
 
-1. Install [Podman](https://podman.io/docs/installation) for a container runtime. Ensure that you init and start the Podman machine as rootful with at least 8 GB memory and 4 CPUs:
+1. Install [Podman](https://podman.io/docs/installation) for a container runtime. For non-Linux runtimes, ensure that you init and start the Podman machine as rootful with at least 8 GB memory and 4 CPUs:
     ```sh
     podman machine init --memory 8192 --cpus 4 --rootful
     podman machine start
@@ -92,7 +92,7 @@ This demo assumes that there is a running instance of MLflow server that would s
 
 For development, you can run a MLflow server using Podman in the same network as the Ray Clusters:
 ```sh
-podman run --name mlflow-server --network mlray-net -p 8080:8080 ghcr.io/mlflow/mlflow \
+podman run -d --name mlflow-server --network mlray-net -p 8080:8080 ghcr.io/mlflow/mlflow \
   mlflow server --host 0.0.0.0 --port 8080
 ```
 ...and visit MLflow's web UI at http://localhost:8080.
