@@ -34,6 +34,8 @@ class MlRayMlFlowClient:
         mlflow.set_tracking_uri(tracking_uri)
 
     def fetch_deployable_models(self) -> Iterator[DeployableModel]:
+        print(f"Fetching deployable models from MLflow registry at {mlflow.get_tracking_uri()}...")
+
         mlflow_models = mlflow.search_registered_models(filter_string=f"name LIKE '%{MLFLOW_MODEL_NAME_SUFFIX}'")
 
         for mlflow_model in mlflow_models:
