@@ -42,6 +42,13 @@ For development & testing, you can emulate multiple Linux VM(s) on a single mach
 
     With the above example, you can visit the respective Ray dashboards on your browser with http://localhost:8265 and http://localhost:8266.
 
+4. If desired, run a Ray worker node for each Python version as well e.g.:
+
+    ```sh
+    podman run --name ray-worker-py39 --network mlray-net --cpus=2 --memory=4g -d ray-serve-py39 bash -c "ray start --address=ray-head-py39:6379 --num-cpus=2 --memory=4096 && tail -f /dev/null"
+    podman run --name ray-worker-py312 --network mlray-net --cpus=2 --memory=4g -d ray-serve-py312 bash -c "ray start --address=ray-head-py312:6379 --num-cpus=2 --memory=4096 && tail -f /dev/null"
+    ```
+
 ### Steps (on actual VMs)
 
 > This demo was tested on Ubuntu 24.04 (LTS) VMs
@@ -68,19 +75,14 @@ For development & testing, you can emulate multiple Linux VM(s) on a single mach
         pip install -U "ray[serve]"
         ray --version
         ```
+
     3. On a single VM designated to be the Ray head node for the Ray Cluster uniquely associated with this Python version, [start a Ray head node](https://docs.ray.io/en/latest/cluster/vms/user-guides/launching-clusters/on-premises.html#start-the-head-node) via the [Ray Cluster Management CLI](https://docs.ray.io/en/latest/cluster/cli.html#ray-start)
 
         ```sh
-        ray start --head --port=6379 
+        ray start --head --port=6379 --dashboard-host=0.0.0.0 
         ```
 
-    4. On the head node VM, ensure that there is the right inbound network connectivity from your local machine so that components of the Ray head node can be access - crucially the Ray Dashboard (port 8265), the GCS Server (port 6379) and the Ray Client Server (port 10001). To do that, you can use SSH port forwarding:
-
-        ```sh
-        ssh -L 8265:localhost:8265 -L 6379:localhost:6379  -L 10001:localhost:10001 <user>@<head-node-address>
-        ```
-
-    5. For every other extra VM designated to Ray worker nodes for the Ray Cluster associated with this Python version, [start a Ray worker node](https://docs.ray.io/en/latest/cluster/vms/user-guides/launching-clusters/on-premises.html#start-worker-nodes) via the [Ray Cluster Management CLI](https://docs.ray.io/en/latest/cluster/cli.html#ray-start)
+    4. For every other extra VM designated to Ray worker nodes for the Ray Cluster associated with this Python version, [start a Ray worker node](https://docs.ray.io/en/latest/cluster/vms/user-guides/launching-clusters/on-premises.html#start-worker-nodes) via the [Ray Cluster Management CLI](https://docs.ray.io/en/latest/cluster/cli.html#ray-start)
     
         ```sh
         ray start --address=<head-node-address>:6379

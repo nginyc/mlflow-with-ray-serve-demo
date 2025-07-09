@@ -4,6 +4,7 @@
 __pycache__/
 .DS_Store
 *.env
+*.env.*
 mlruns/
 mlartifacts/
 catboost_info/
