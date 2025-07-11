@@ -1,0 +1,13 @@
+mlray:
+  working_dir: .mlray
+
+ray_clusters:
+- name: ray-cluster-py39
+  python_version: '3.12'
+  dashboard_address: http://localhost:8265
+  mlflow_tracking_uri: http://mlflow-server:8080
+
+- name: ray-cluster-py312
+  python_version: '3.12'
+  dashboard_address: http://localhost:8266
+  mlflow_tracking_uri: http://mlflow-server:8080

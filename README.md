@@ -137,7 +137,9 @@ We demonstrate training and deploying ML models with conflicting library version
 
     These versions need to match the respective Ray Clusters', down to the patch number.
 
-2. Train different ML models with different library versions and Python versions, and log them all to MLflow:
+2. Copy `.env.template` as `.env` and configure the required environment variables
+
+3. Train different ML models with different library versions and Python versions, and log them all to MLflow:
 
     For example, we train and log 3 models by running `train_catboost_model.ipynb` in the respective virtual environments after installing their required dependencies:
 
@@ -169,7 +171,7 @@ We demonstrate training and deploying ML models with conflicting library version
 
     ![](examples/mlflow_experiments.png)
 
-3. On MLflow, for each model that is to be deployed, [register each model](https://mlflow.org/docs/latest/ml/model-registry) with a `.staging` suffix in their name, and promote a trained model version under the registered model
+4. On MLflow, for each model that is to be deployed, [register each model](https://mlflow.org/docs/latest/ml/model-registry) with a `.staging` suffix in their name, and promote a trained model version under the registered model
 
     For example, register a model each for `iris_classifier-py312-catboost12.staging`, `iris_classifier-py39-catboost12.staging`, `iris_classifier-py39-catboost11.staging` based on the trained models in the previous step
 
@@ -185,28 +187,25 @@ We demonstrate training and deploying ML models with conflicting library version
     | `ray.ray_actor_options.memory`           | Yes          | `1`                                | Memory in GB per replica               |
     | `ray.ray_actor_options.runtime_env.env_vars` | No       | `{"ENV_VAR": "value"}`             | Environment variables for deployment   |
 
-3. Run the `mlray update-config` command to update Ray Serve config files based on the registered models in the MLflow model registry e.g.:
+5. Copy `config.example.yml` to `config.yml` and update the configuration as necessary
+
+6. Run the `mlray deploy` command to deploy the registered models in the MLflow model registry for each Ray Cluster e.g.:
 
     ```sh
-    RUNTIME_MLFLOW_TRACKING_URI=http://mlflow-server:8080 mlray update-config 3.12.11:examples/config-py312.yml 3.9.22:examples/config-py39.yml
-    ```
-
-    > For each model, this command reads from `python_env.yml` and `requirements.txt` in the [MLflow model artifact](https://mlflow.org/docs/latest/ml/model/dependencies) to determine its required Python version and PIP dependencies for Ray Serve. It also reads from each model's tags to configure the Ray Serve deployment.
-
-4. Deploy the models on respective Ray Clusters based on the updated Ray Serve config files:
-
-    ```sh
-    RAY_DASHBOARD_ADDRESS=http://localhost:8265 serve deploy examples/config-py39.yml
-    RAY_DASHBOARD_ADDRESS=http://localhost:8266 serve deploy examples/config-py312.yml
+    mlray deploy config.yml ray-cluster-py39
+    mlray deploy config.yml ray-cluster-py312
     ```
 
     Check the respective Ray dashboards to check on the status of the deployments.
 
     ![](examples/ray_serve_deployments.png)
 
+    > For each model, this command reads from `python_env.yml` and `requirements.txt` in the [MLflow model artifact](https://mlflow.org/docs/latest/ml/model/dependencies) to determine its required Python version and PIP dependencies for Ray Serve. It also reads from each model's tags to configure the Ray Serve deployment.
+    
     > Note: If you are running this demo fully locally on Apple Silicon (ARM64) on Podman, you would encounter the error that `catboost==1.1` cannot be installed on the Python 3.9 Ray Cluster. This is because your Ray Cluster would be running on ARM64 version of Ubuntu (to match the host machine's architecture) and CatBoost 1.1 does not have the Linux wheels for the ARM64 architecture :(
 
-5. Verify that the model serving endpoints are working with e.g. REST requests like those in `examples/xxx.request.http`
+
+7. Verify that the model serving endpoints are working with e.g. REST requests like those in `examples/xxx.request.http`
 
     ![](examples/model_http_request.png)
 

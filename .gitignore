@@ -9,3 +9,5 @@ mlruns/
 mlartifacts/
 catboost_info/
 *.egg-info
+config.yml
+.mlray/
