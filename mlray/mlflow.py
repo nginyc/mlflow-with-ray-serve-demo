@@ -2,7 +2,7 @@ from mlflow import MlflowException
 import yaml
 from typing import Iterator, cast
 import mlflow.artifacts
-from pydantic import BaseModel, Field, PositiveFloat, PositiveInt, NonNegativeFloat, ValidationError
+from pydantic import BaseModel, Field, PositiveFloat, PositiveInt, ValidationError
 from mlflow.entities.model_registry import ModelVersion
 
 MLFLOW_MODEL_NAME_SUFFIX = ".staging"
@@ -30,9 +30,6 @@ class InvalidMlflowModelError(Exception):
     pass
 
 class MlRayMlFlowClient:
-    def __init__(self, tracking_uri: str):
-        mlflow.set_tracking_uri(tracking_uri)
-
     def fetch_deployable_models(self) -> Iterator[DeployableModel]:
         print(f"Fetching deployable models from MLflow registry at {mlflow.get_tracking_uri()}...")
 

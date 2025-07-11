@@ -12,12 +12,6 @@ def configure_paser(arg_parser: ArgumentParser):
         help="Pairs of python_version:config_path (e.g. 3.12.11:examples/config-py312.yml)",
     )
     arg_parser.add_argument(
-        "--mlflow-tracking-uri",
-        type=str,
-        default=os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:8080"),
-        help="MLflow tracking URI (default: env MLFLOW_TRACKING_URI or http://localhost:8080)",
-    )
-    arg_parser.add_argument(
         "--runtime-mlflow-tracking-uri",
         type=str,
         default=os.environ.get("RUNTIME_MLFLOW_TRACKING_URI", "http://localhost:8080"),
@@ -27,7 +21,7 @@ def configure_paser(arg_parser: ArgumentParser):
 
 
 def main(
-    python_version_config_pairs: list, mlflow_tracking_uri: str, runtime_mlflow_tracking_uri: str
+    python_version_config_pairs: list, runtime_mlflow_tracking_uri: str
 ):
     """
     Update the Ray Serve config.yml files for multiple Python versions based on the ML model registry.
@@ -43,7 +37,7 @@ def main(
         
         python_version_to_config_path[python_version] = config_path
 
-    client = MlRayMlFlowClient(mlflow_tracking_uri)
+    client = MlRayMlFlowClient()
     try:
         deployable_models = list(client.fetch_deployable_models())
     except InvalidMlflowModelError as e:
