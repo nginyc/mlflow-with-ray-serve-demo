@@ -95,7 +95,7 @@ def build_ray_serve_config(
     cluster_config: RayClusterConfig,
     deployable_models: list[DeployableModel]
 ):
-    print(f"Building Ray Serve config with {len(deployable_models)} deployable models...")
+    print(f"Building Ray Serve config with {len(deployable_models)} deployable model(s)...")
     applications = []
     for model in deployable_models:
         app = build_ray_serve_config_application(cluster_config, model)
@@ -131,9 +131,10 @@ def build_ray_serve_config_application(
         "import_path": "mlray.app:app", # This points to `mlray/app.py`
          "runtime_env": {
             "env_vars": {
-                **model.env_vars,
                 'MLFLOW_TRACKING_URI': cluster_config.mlflow_tracking_uri,
                 'MODEL_URI': model.model_uri,
+                **model.env_vars,
+                **cluster_config.env_vars,
             },
             "pip": model.pip_requirements,
         },

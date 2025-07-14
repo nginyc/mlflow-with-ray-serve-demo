@@ -10,6 +10,7 @@ class RayClusterConfig(BaseModel):
     python_version: Annotated[str, AfterValidator(validate_python_major_version)]
     dashboard_address: str
     mlflow_tracking_uri: str
+    env_vars: dict[str, str] = {}
 
 class MlRayConfig(BaseModel):
     working_dir: str
