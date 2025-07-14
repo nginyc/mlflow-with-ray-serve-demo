@@ -60,7 +60,9 @@ For development & testing, you can emulate multiple Linux VM(s) on a single mach
     eval "$(pyenv init -)"
     ```
 
-2. For each Python version to be supported:
+2. Clone this project's code on each VM
+
+3. For each Python version to be supported, at the root of the project's code:
 
     1. On each VM, install the same Python version and activate it:
 
@@ -69,10 +71,11 @@ For development & testing, you can emulate multiple Linux VM(s) on a single mach
         pyenv shell 3.9.22
         ```
     
-    2. On each VM, install [Ray Serve](https://docs.ray.io/en/latest/ray-overview/installation.html) and ensure the version of Ray is the same across all VMs:
+    2. On each VM, install Ray Serve and MLflow using PIP, and ensure the version of Ray is the same across all VMs:
         
         ```sh
         pip install -U "ray[serve]"
+        pip install -U mlflow boto3
         ray --version
         ```
 

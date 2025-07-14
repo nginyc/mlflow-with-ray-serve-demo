@@ -22,8 +22,9 @@ ENV PATH="/root/.pyenv/shims:$PATH"
 # Ensure pip is up to date
 RUN pip install --upgrade pip
 
-# Install ray[serve]
+# Install Ray Serve and MLflow
 RUN pip install "ray[serve]"
+RUN pip install mlflow boto3
 
 # Copy mlray/ into image
 COPY mlray/ mlray/

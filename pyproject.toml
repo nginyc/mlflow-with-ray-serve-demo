@@ -17,6 +17,7 @@ dependencies = [
     "pydantic",
     "transformers",
     "starlette",
+    "boto3",
 ]
 
 [tool.setuptools.packages.find]

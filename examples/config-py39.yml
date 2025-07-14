@@ -1,7 +1,7 @@
 applications:
 - deployments:
   - name: App
-    num_replicas: 1
+    num_replicas: 2
     ray_actor_options:
       memory: 1.0
       num_cpus: 0.5
@@ -10,7 +10,7 @@ applications:
   route_prefix: /iris_classifier-py39-catboost11
   runtime_env:
     env_vars:
-      MLFLOW_TRACKING_URI: http://mlflow-server:8080
+      MLFLOW_TRACKING_URI: http://172.21.33.25:80
       MODEL_URI: models:/iris_classifier-py39-catboost11/1
     pip:
     - mlflow==3.1.0
@@ -21,7 +21,7 @@ applications:
     - scipy==1.13.1
 - deployments:
   - name: App
-    num_replicas: 1
+    num_replicas: 4
     ray_actor_options:
       memory: 1.0
       num_cpus: 0.5
@@ -30,7 +30,7 @@ applications:
   route_prefix: /iris_classifier-py39-catboost12
   runtime_env:
     env_vars:
-      MLFLOW_TRACKING_URI: http://mlflow-server:8080
+      MLFLOW_TRACKING_URI: http://172.21.33.25:80
       MODEL_URI: models:/iris_classifier-py39-catboost12/1
     pip:
     - mlflow==3.1.0
