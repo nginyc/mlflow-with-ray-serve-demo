@@ -2,7 +2,7 @@ from mlflow import MlflowException
 import yaml
 from typing import Iterator, Optional, cast
 import mlflow.artifacts
-from pydantic import BaseModel, Field, PositiveFloat, PositiveInt, ValidationError
+from pydantic import BaseModel, Field, PositiveFloat, PositiveInt, ValidationError, NonNegativeInt
 from mlflow.entities.model_registry import ModelVersion
 
 MLFLOW_MODEL_NAME_SUFFIX = ".staging"
@@ -13,19 +13,23 @@ class _MlflowModelRequirements(BaseModel):
 
 class _MlflowModelTags(BaseModel):
     name: str = Field(..., validation_alias="ray.name", description="Name of Ray Serve application")
-    num_replicas: PositiveInt = Field(..., validation_alias="ray.num_replicas", description="Number of replicas for the application's deployment")
     num_cpus: PositiveFloat = Field(..., validation_alias="ray.ray_actor_options.num_cpus", description="Number of CPUs per replica")
     memory: PositiveFloat = Field(..., validation_alias="ray.ray_actor_options.memory", description="Memory in GB per replica")
     env_vars: dict = Field({}, validation_alias="ray.ray_actor_options.runtime_env.env_vars", description="Environment variables for the model")
+    min_replicas: Optional[NonNegativeInt] = Field(default=None, validation_alias="ray.autoscaling_config.min_replicas", description="Min. no. of replicas for the deployment")
+    max_replicas: Optional[NonNegativeInt] = Field(default=None, validation_alias="ray.autoscaling_config.max_replicas", description="Max. no. of replicas for the deployment")
+    target_ongoing_requests: Optional[PositiveInt] = Field(default=None, validation_alias="ray.autoscaling_config.target_ongoing_requests", description="Average no. of ongoing requests per replica that the Ray Serve autoscaler tries to ensure")
     max_batch_size: Optional[PositiveInt] = Field(default=None, validation_alias="ray.user_config.max_batch_size", description="Max batch size for Ray Serve dynamic request batching")
 
 class DeployableModel(_MlflowModelRequirements):
     model_uri: str
     name: str 
-    num_replicas: PositiveInt
     num_cpus: PositiveFloat
     memory: PositiveFloat 
     env_vars: dict 
+    min_replicas: Optional[NonNegativeInt]
+    max_replicas: Optional[NonNegativeInt]
+    target_ongoing_requests: Optional[PositiveInt]
     max_batch_size: Optional[PositiveInt]
 
 class InvalidMlflowModelError(Exception):

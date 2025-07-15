@@ -185,11 +185,13 @@ We demonstrate training and deploying ML models with conflicting library version
     | **Tag**                                   | **Required** | **Example**                        | **Description**                        |
     |:------------------------------------------|:------------:|:-----------------------------------|:---------------------------------------|
     | `ray.name`                               | Yes          | `iris_classifier-py39-catboost11`  | Name of the deployment                 |
-    | `ray.num_replicas`                       | Yes          | `1`                                | Number of replicas                     |
     | `ray.ray_actor_options.num_cpus`         | Yes          | `0.5`                              | Number of CPUs per replica             |
     | `ray.ray_actor_options.memory`           | Yes          | `1`                                | Memory in GB per replica               |
-    | `ray.user_config.max_batch_size`           | No          | `8`                                | Max batch size for [Ray Serve dynamic request batching](https://docs.ray.io/en/latest/serve/advanced-guides/dyn-req-batch.html). Request batching is disabled unless this is specified. |
     | `ray.ray_actor_options.runtime_env.env_vars` | No       | `{"ENV_VAR": "value"}`             | Environment variables for deployment   |
+    | `ray.autoscaling_config.min_replicas` | No       | `1`             | Min. no. of replicas for the deployment. Default value: 1 |
+    | `ray.autoscaling_config.max_replicas` | No       | `100`             | Max. no. of replicas for the deployment. Default value: 100 |
+    | `ray.user_config.max_batch_size`           | No          | `8`                                | Max batch size for [Ray Serve dynamic request batching](https://docs.ray.io/en/latest/serve/advanced-guides/dyn-req-batch.html). Request batching is disabled unless this is specified. |
+    | `ray.autoscaling_config.target_ongoing_requests` | No       | `2`             | Average no. of ongoing requests per replica that the [Ray Serve autoscaler](https://docs.ray.io/en/latest/serve/autoscaling-guide.html) tries to ensure. Default value: 2 if batching is disabled, otherwise max batch size |
 
 5. Copy `config.example.yml` to `config.yml` and update the configuration as necessary
 

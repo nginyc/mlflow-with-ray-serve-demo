@@ -127,7 +127,11 @@ def build_ray_serve_config_application(
 ) -> dict:
     max_batch_size = model.max_batch_size if model.max_batch_size else 1
     should_batch = max_batch_size > 1
-    max_ongoing_requests = max_batch_size if should_batch else 5
+
+    target_ongoing_requests = max_batch_size if should_batch else 2
+    max_ongoing_requests = max(round(target_ongoing_requests * 1.2), 5)
+    min_replicas = model.min_replicas if model.min_replicas else 1
+    max_replicas = model.max_replicas if model.max_replicas else 100
     
     app = {
         "name": model.name,
@@ -145,8 +149,12 @@ def build_ray_serve_config_application(
         "deployments": [
             {
                 "name": "App", # This points to `App` class in `mlray/app.py`
-                "num_replicas": model.num_replicas,
                 "max_ongoing_requests": max_ongoing_requests,
+                "autoscaling_config": {
+                    "target_ongoing_requests": target_ongoing_requests,
+                    "min_replicas": min_replicas,
+                    "max_replicas": max_replicas,
+                },
                 "ray_actor_options": {
                     "num_cpus": model.num_cpus,
                     "memory": model.memory
@@ -157,4 +165,5 @@ def build_ray_serve_config_application(
             }
         ]
     }
+
     return app
