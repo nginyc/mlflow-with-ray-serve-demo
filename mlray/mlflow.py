@@ -1,6 +1,6 @@
 from mlflow import MlflowException
 import yaml
-from typing import Iterator, cast
+from typing import Iterator, Optional, cast
 import mlflow.artifacts
 from pydantic import BaseModel, Field, PositiveFloat, PositiveInt, ValidationError
 from mlflow.entities.model_registry import ModelVersion
@@ -17,14 +17,16 @@ class _MlflowModelTags(BaseModel):
     num_cpus: PositiveFloat = Field(..., validation_alias="ray.ray_actor_options.num_cpus", description="Number of CPUs per replica")
     memory: PositiveFloat = Field(..., validation_alias="ray.ray_actor_options.memory", description="Memory in GB per replica")
     env_vars: dict = Field({}, validation_alias="ray.ray_actor_options.runtime_env.env_vars", description="Environment variables for the model")
+    max_batch_size: Optional[PositiveInt] = Field(default=None, validation_alias="ray.user_config.max_batch_size", description="Max batch size for Ray Serve dynamic request batching")
 
 class DeployableModel(_MlflowModelRequirements):
-    model_uri: str = Field(...)
-    name: str = Field(...)
-    num_replicas: PositiveInt = Field(...)
-    num_cpus: PositiveFloat = Field(...)
-    memory: PositiveFloat = Field(...)
-    env_vars: dict = Field(...)
+    model_uri: str
+    name: str 
+    num_replicas: PositiveInt
+    num_cpus: PositiveFloat
+    memory: PositiveFloat 
+    env_vars: dict 
+    max_batch_size: Optional[PositiveInt]
 
 class InvalidMlflowModelError(Exception):
     pass

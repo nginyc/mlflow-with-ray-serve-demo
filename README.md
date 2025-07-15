@@ -188,6 +188,7 @@ We demonstrate training and deploying ML models with conflicting library version
     | `ray.num_replicas`                       | Yes          | `1`                                | Number of replicas                     |
     | `ray.ray_actor_options.num_cpus`         | Yes          | `0.5`                              | Number of CPUs per replica             |
     | `ray.ray_actor_options.memory`           | Yes          | `1`                                | Memory in GB per replica               |
+    | `ray.user_config.max_batch_size`           | No          | `8`                                | Max batch size for [Ray Serve dynamic request batching](https://docs.ray.io/en/latest/serve/advanced-guides/dyn-req-batch.html). Request batching is disabled unless this is specified. |
     | `ray.ray_actor_options.runtime_env.env_vars` | No       | `{"ENV_VAR": "value"}`             | Environment variables for deployment   |
 
 5. Copy `config.example.yml` to `config.yml` and update the configuration as necessary

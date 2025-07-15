@@ -80,7 +80,7 @@ def save_ray_serve_config(
     Save the Ray Serve configuration to a YAML file.
     """
     cluster_name = cluster_config.name
-    config_file_name = f"{cluster_name}.ray_serve.config..yml"
+    config_file_name = f"{cluster_name}.ray_serve.config.yml"
     
     os.makedirs(mlray_config.working_dir, exist_ok=True)
     config_path = os.path.join(mlray_config.working_dir, config_file_name)
@@ -125,6 +125,10 @@ def build_ray_serve_config_application(
     cluster_config: RayClusterConfig,
     model: DeployableModel,
 ) -> dict:
+    max_batch_size = model.max_batch_size if model.max_batch_size else 1
+    should_batch = max_batch_size > 1
+    max_ongoing_requests = max_batch_size if should_batch else 5
+    
     app = {
         "name": model.name,
         "route_prefix": f"/{model.name}",
@@ -142,9 +146,13 @@ def build_ray_serve_config_application(
             {
                 "name": "App", # This points to `App` class in `mlray/app.py`
                 "num_replicas": model.num_replicas,
+                "max_ongoing_requests": max_ongoing_requests,
                 "ray_actor_options": {
                     "num_cpus": model.num_cpus,
                     "memory": model.memory
+                },
+                "user_config": {
+                    "max_batch_size": max_batch_size
                 }
             }
         ]
