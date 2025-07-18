@@ -149,6 +149,7 @@ def build_ray_serve_config_application(
         "deployments": [
             {
                 "name": "App", # This points to `App` class in `mlray/app.py`
+                "request_router_class": "mlray.router:UniformRequestRouter", # This points to `UniformRequestRouter` class in `mlray/router.py`
                 "max_ongoing_requests": max_ongoing_requests,
                 "autoscaling_config": {
                     "target_ongoing_requests": target_ongoing_requests,
