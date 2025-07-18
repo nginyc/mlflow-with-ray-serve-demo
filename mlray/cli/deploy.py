@@ -129,7 +129,7 @@ def build_ray_serve_config_application(
     should_batch = max_batch_size > 1
 
     target_ongoing_requests = max_batch_size if should_batch else 2
-    max_ongoing_requests = max(round(target_ongoing_requests * 1.2), 5)
+    max_ongoing_requests = max(round(target_ongoing_requests * 1.2), target_ongoing_requests + 1)
     min_replicas = model.min_replicas if model.min_replicas else 1
     max_replicas = model.max_replicas if model.max_replicas else 100
     
