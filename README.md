@@ -2,115 +2,23 @@
 
 This is a demo of how [MLflow](https://mlflow.org/) models can be deployed with [Ray Serve](https://docs.ray.io/en/latest/serve/index.html) running on Ray Clusters deployed on your own VMs. Multiple major Python versions are supported by running multiple Ray Clusters.
 
-## Running Ray Clusters on VMs
+## Setting Up for Development
 
-### Overview
+### Setting up Local Environment
 
-Each Ray Cluster assumes the same major Python version and Ray version across all its tasks/deployments (see [Ray's documentation on Environment Dependencies](https://docs.ray.io/en/latest/ray-core/handling-dependencies.html)). The Ray team recommends multiple Ray Clusters for each major Python version to be supported (see [Ray's discussion forum](https://discuss.ray.io/t/how-to-use-different-python-versions-in-the-same-cluster/15825)).
+1. Install the following:
+    - [pyenv](https://github.com/pyenv/pyenv) for switching between Python versions easily
+    - [uv](https://docs.astral.sh/uv/getting-started/installation/) for Python package and project management
 
-**Pre-requisites**
-- A list of Python versions to be supported (e.g. `3.9.22` and `3.12.11`)
-- Multiple Linux VM(s) with network connectivity with the internet and with one another. There should also be at least as many Linux VM(s) as Python versions
 
-For development & testing, you can emulate multiple Linux VM(s) on a single machine with [Podman](https://podman.io/) instead.
-
-### Steps (on a single machine using Podman)
-
-1. Install [Podman](https://podman.io/docs/installation) for a container runtime. For non-Linux runtimes, ensure that you init and start the Podman machine as rootful with at least 8 GB memory and 4 CPUs:
+2. Install [Podman](https://podman.io/docs/installation) for a container runtime e.g.
     ```sh
     podman machine init --memory 8192 --cpus 4 --rootful
     podman machine start
     podman machine inspect
     ```
 
-2. Build a Docker image for each Python version e.g.:
-    ```sh
-    podman build -f docker/ray-serve-py39.Dockerfile -t ray-serve-py39 .
-    podman build -f docker/ray-serve-py312.Dockerfile -t ray-serve-py312 .
-    ```
-
-3. Run a Ray head node for each Python version e.g.: 
-
-    ```sh
-    podman network create mlray-net
-    podman run --name ray-head-py39 --network mlray-net --cpus=2 --memory=4g -p 8265:8265 -p 6379:6379 -p 10001:10001 -p 8000:8000 -d ray-serve-py39 \
-        bash -c "ray start --head --num-cpus=2 --memory=4096 --port=6379 --dashboard-host=0.0.0.0 && tail -f /dev/null"
-
-    podman run --name ray-head-py312 --network mlray-net --cpus=2 --memory=4g -p 8266:8265 -p 6380:6379 -p 10002:10001 -p 8001:8000 -d ray-serve-py312 \
-        bash -c "ray start --head --num-cpus=2 --memory=4096 --port=6379 --dashboard-host=0.0.0.0 && tail -f /dev/null"
-    ```
-
-    With the above example, you can visit the respective Ray dashboards on your browser with http://localhost:8265 and http://localhost:8266.
-
-4. If desired, run a Ray worker node for each Python version as well e.g.:
-
-    ```sh
-    podman run --name ray-worker-py39 --network mlray-net --cpus=2 --memory=4g -d ray-serve-py39 bash -c "ray start --address=ray-head-py39:6379 --num-cpus=2 --memory=4096 && tail -f /dev/null"
-    podman run --name ray-worker-py312 --network mlray-net --cpus=2 --memory=4g -d ray-serve-py312 bash -c "ray start --address=ray-head-py312:6379 --num-cpus=2 --memory=4096 && tail -f /dev/null"
-    ```
-
-### Steps (on actual VMs)
-
-> This demo was tested on Ubuntu 24.04 (LTS) VMs
-
-1. On each VM, install [pyenv](https://github.com/pyenv/pyenv), and ensure shims are set up and shell function is installed such that `pyenv shell` works:
-
-    ```sh
-    curl -fsSL https://pyenv.run | bash
-    eval "$(pyenv init -)"
-    ```
-
-2. Clone this project's code on each VM
-
-3. For each Python version to be supported, at the root of the project's code:
-
-    1. On each VM, install the same Python version and activate it:
-
-        ```sh
-        pyenv install 3.9.22
-        pyenv shell 3.9.22
-        ```
-    
-    2. On each VM, install Ray Serve and MLflow using PIP, and ensure the version of Ray is the same across all VMs:
-        
-        ```sh
-        pip install -U "ray[serve]"
-        pip install -U mlflow boto3
-        ray --version
-        ```
-
-    3. On a single VM designated to be the Ray head node for the Ray Cluster uniquely associated with this Python version, [start a Ray head node](https://docs.ray.io/en/latest/cluster/vms/user-guides/launching-clusters/on-premises.html#start-the-head-node) via the [Ray Cluster Management CLI](https://docs.ray.io/en/latest/cluster/cli.html#ray-start)
-
-        ```sh
-        ray start --head --port=6379 --dashboard-host=0.0.0.0 
-        ```
-
-    4. For every other extra VM designated to Ray worker nodes for the Ray Cluster associated with this Python version, [start a Ray worker node](https://docs.ray.io/en/latest/cluster/vms/user-guides/launching-clusters/on-premises.html#start-worker-nodes) via the [Ray Cluster Management CLI](https://docs.ray.io/en/latest/cluster/cli.html#ray-start)
-    
-        ```sh
-        ray start --address=<head-node-address>:6379
-        ```
-
-## Running MLflow 
-
-This demo assumes that there is a running instance of MLflow server that would serve as the ML model registry. This MLflow server needs to be network-accessible by the Ray Clusters.
-
-For development, you can run a MLflow server using Podman in the same network as the Ray Clusters:
-```sh
-podman run -d --name mlflow-server --network mlray-net -p 8080:8080 ghcr.io/mlflow/mlflow \
-  mlflow server --host 0.0.0.0 --port 8080
-```
-...and visit MLflow's web UI at http://localhost:8080.
-
-## Setting up Local Environment
-
-This sets up the local environment where model can be trained and deployed.
-
-1. Install the following:
-    - [pyenv](https://github.com/pyenv/pyenv) for switching between Python versions easily
-    - [uv](https://docs.astral.sh/uv/getting-started/installation/) for Python package and project management
-
-2. Install this project's Python version with `pyenv`, install Python dependencies with `uv` and activate the virtual environment:
+3. Install this project's Python version with `pyenv`, install Python dependencies with `uv` and activate the virtual environment:
 
     ```sh
     pyenv install
@@ -118,7 +26,50 @@ This sets up the local environment where model can be trained and deployed.
     source .venv/bin/activate
     ```
 
-## Deploying Trained Models
+### Running Local Ray Cluster
+
+Run a single-node setup locally without metrics visualization with:
+
+```sh
+ray start --head
+```
+
+...and visit Ray Dashboard at http://localhost:8265.
+
+Alternatively, to enable metrics visualization, we follow ([Ray Serve's instructions](https://docs.ray.io/en/latest/cluster/metrics.html)) to run Prometheus and Grafana locally first:
+
+1. Run Prometheus:
+
+    ```sh
+    ray metrics launch-prometheus &
+    rm -rf prometheus-* # Remove temporary files
+    ```
+
+2. Download [Grafana](https://grafana.com/grafana/download) and run it:
+
+    ```sh
+    ./bin/grafana server --config /tmp/ray/session_latest/metrics/grafana/grafana.ini web
+    ```
+
+3. Lastly, start Ray with :
+
+    ```sh
+    RAY_GRAFANA_HOST=http://localhost:3000 RAY_PROMETHEUS_HOST=http://localhost:9090 ray start --head
+    ```
+
+### Running Local MLflow 
+
+This demo assumes that there is a running instance of MLflow server that would serve as the ML model registry. This MLflow server needs to be network-accessible by the Ray Clusters.
+
+For development, you can run a MLflow server using Podman in the same network as the Ray Clusters:
+```sh
+podman network create mlray-net
+podman run -d --name mlflow-server --network mlray-net -p 8080:8080 ghcr.io/mlflow/mlflow \
+  mlflow server --host 0.0.0.0 --port 8080
+```
+...and visit MLflow's web UI at http://localhost:8080.
+
+### Deploying Trained Models
 
 We demonstrate training and deploying ML models with conflicting library versions and Python versions.
 
@@ -216,3 +167,84 @@ We demonstrate training and deploying ML models with conflicting library version
     ![](examples/model_http_request.png)
 
 
+## Running Multi-Node Ray Cluster(s) 
+
+### Overview
+
+Each Ray Cluster assumes the same major Python version and Ray version across all its tasks/deployments (see [Ray's documentation on Environment Dependencies](https://docs.ray.io/en/latest/ray-core/handling-dependencies.html)). The Ray team recommends multiple Ray Clusters for each major Python version to be supported (see [Ray's discussion forum](https://discuss.ray.io/t/how-to-use-different-python-versions-in-the-same-cluster/15825)).
+
+**Pre-requisites**
+- A list of Python versions to be supported (e.g. `3.9.22` and `3.12.11`)
+- Multiple VM(s) with network connectivity with the internet and with one another. There should also be at least as many VM(s) as Python versions
+
+### On a single machine using Podman
+
+For development & testing, you can emulate multiple Linux VM(s) on a single machine with [Podman](https://podman.io/) instead.
+
+1. Build a Docker image for each Python version e.g.:
+    ```sh
+    podman build -f docker/ray-serve-py39.Dockerfile -t ray-serve-py39 .
+    podman build -f docker/ray-serve-py312.Dockerfile -t ray-serve-py312 .
+    ```
+
+2. Run a Ray head node for each Python version e.g.: 
+
+    ```sh
+    podman network create mlray-net
+    podman run --name ray-head-py39 --network mlray-net --cpus=2 --memory=4g -p 8265:8265 -p 6379:6379 -p 10001:10001 -p 8000:8000 -d ray-serve-py39 \
+        bash -c "ray start --head --num-cpus=2 --memory=4096 --port=6379 --dashboard-host=0.0.0.0 && tail -f /dev/null"
+
+    podman run --name ray-head-py312 --network mlray-net --cpus=2 --memory=4g -p 8266:8265 -p 6380:6379 -p 10002:10001 -p 8001:8000 -d ray-serve-py312 \
+        bash -c "ray start --head --num-cpus=2 --memory=4096 --port=6379 --dashboard-host=0.0.0.0 && tail -f /dev/null"
+    ```
+
+    With the above example, you can visit the respective Ray dashboards on your browser with http://localhost:8265 and http://localhost:8266.
+
+3. If desired, run a Ray worker node for each Python version as well e.g.:
+
+    ```sh
+    podman run --name ray-worker-py39 --network mlray-net --cpus=2 --memory=4g -d ray-serve-py39 bash -c "ray start --address=ray-head-py39:6379 --num-cpus=2 --memory=4096 && tail -f /dev/null"
+    podman run --name ray-worker-py312 --network mlray-net --cpus=2 --memory=4g -d ray-serve-py312 bash -c "ray start --address=ray-head-py312:6379 --num-cpus=2 --memory=4096 && tail -f /dev/null"
+    ```
+
+### On actual VMs
+
+> This demo was tested on Ubuntu 24.04 (LTS) VMs
+
+1. On each VM, install [pyenv](https://github.com/pyenv/pyenv), and ensure shims are set up and shell function is installed such that `pyenv shell` works:
+
+    ```sh
+    curl -fsSL https://pyenv.run | bash
+    eval "$(pyenv init -)"
+    ```
+
+2. Clone this project's code on each VM
+
+3. For each Python version to be supported, at the root of the project's code:
+
+    1. On each VM, install the same Python version and activate it:
+
+        ```sh
+        pyenv install 3.9.22
+        pyenv shell 3.9.22
+        ```
+    
+    2. On each VM, install Ray Serve and MLflow using PIP, and ensure the version of Ray is the same across all VMs:
+        
+        ```sh
+        pip install -U "ray[serve]"
+        pip install -U mlflow boto3
+        ray --version
+        ```
+
+    3. On a single VM designated to be the Ray head node for the Ray Cluster uniquely associated with this Python version, [start a Ray head node](https://docs.ray.io/en/latest/cluster/vms/user-guides/launching-clusters/on-premises.html#start-the-head-node) via the [Ray Cluster Management CLI](https://docs.ray.io/en/latest/cluster/cli.html#ray-start)
+
+        ```sh
+        ray start --head --port=6379 --dashboard-host=0.0.0.0 
+        ```
+
+    4. For every other extra VM designated to Ray worker nodes for the Ray Cluster associated with this Python version, [start a Ray worker node](https://docs.ray.io/en/latest/cluster/vms/user-guides/launching-clusters/on-premises.html#start-worker-nodes) via the [Ray Cluster Management CLI](https://docs.ray.io/en/latest/cluster/cli.html#ray-start)
+    
+        ```sh
+        ray start --address=<head-node-address>:6379
+        ```

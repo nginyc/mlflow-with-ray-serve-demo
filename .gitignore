@@ -11,3 +11,4 @@ catboost_info/
 *.egg-info
 config.yml
 .mlray/
+data/
