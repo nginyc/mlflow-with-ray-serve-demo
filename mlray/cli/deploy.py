@@ -132,11 +132,18 @@ def build_ray_serve_config_application(
     max_ongoing_requests = max(round(target_ongoing_requests * 1.2), target_ongoing_requests + 1)
     min_replicas = model.min_replicas if model.min_replicas else 1
     max_replicas = model.max_replicas if model.max_replicas else 100
+
+    # This points to `mlray/app.py` or `mlray/batching_app.py.py` 
+    import_path = f"mlray.batching_app:app" if should_batch else f"mlray.app:app"
+
+    user_config = {}
+    if should_batch:
+        user_config['max_batch_size'] = max_batch_size
     
     app = {
         "name": model.name,
         "route_prefix": f"/{model.name}",
-        "import_path": "mlray.app:app", # This points to `mlray/app.py`
+        "import_path": import_path,
          "runtime_env": {
             "env_vars": {
                 'MLFLOW_TRACKING_URI': cluster_config.mlflow_tracking_uri,
@@ -148,7 +155,7 @@ def build_ray_serve_config_application(
         },
         "deployments": [
             {
-                "name": "App", # This points to `App` class in `mlray/app.py`
+                "name": "App", # This points to `App` class
                 "request_router_class": "mlray.router:UniformRequestRouter", # This points to `UniformRequestRouter` class in `mlray/router.py`
                 "max_ongoing_requests": max_ongoing_requests,
                 "autoscaling_config": {
@@ -160,9 +167,7 @@ def build_ray_serve_config_application(
                     "num_cpus": model.num_cpus,
                     "memory": model.memory
                 },
-                "user_config": {
-                    "max_batch_size": max_batch_size
-                }
+                "user_config": user_config if user_config else None,
             }
         ]
     }
