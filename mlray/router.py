@@ -1,6 +1,6 @@
 import random
-from ray.serve.request_router import PendingRequest, RequestRouter, RunningReplica # type: ignore
 from typing import List, Optional
+from ray.serve.request_router import PendingRequest, RequestRouter, RunningReplica # type: ignore
 
 class UniformRequestRouter(RequestRouter):
     '''
@@ -14,5 +14,14 @@ class UniformRequestRouter(RequestRouter):
         pending_request: Optional[PendingRequest] = None,
     ) -> List[List[RunningReplica]]:
         available_replicas = self.select_available_replicas(candidate_replicas)
-        index = random.randint(0, len(available_replicas) - 1)
-        return [[candidate_replicas[index]]]
+        
+        if not available_replicas:
+            return []
+
+        chosen_replicas = random.sample(
+            list(available_replicas),
+            k=min(2, len(available_replicas)),
+        )
+
+        return [chosen_replicas]
+
