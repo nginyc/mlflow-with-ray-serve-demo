@@ -30,9 +30,9 @@ This is a demo of how [MLflow](https://mlflow.org/) models can be deployed with 
 
 Run a single-node setup locally without metrics visualization with:
 
-```sh
-ray start --head
-```
+    ```sh
+    ray start --head --dashboard-host=0.0.0.0 
+    ```
 
 ...and visit Ray Dashboard at http://localhost:8265.
 
@@ -45,28 +45,43 @@ Alternatively, to enable metrics visualization, we follow ([Ray Serve's instruct
     rm -rf prometheus-* # Remove temporary files
     ```
 
-2. Download [Grafana](https://grafana.com/grafana/download) and run it:
+2. Download [Grafana and set it up](https://grafana.com/docs/grafana/latest/setup-grafana/):
 
     ```sh
-    ./bin/grafana server --config /tmp/ray/session_latest/metrics/grafana/grafana.ini web
+    GF_SERVER_HTTP_ADDR=localhost GF_SERVER_HTTP_PORT=3000 ./bin/grafana server --homepath ./grafana --config /tmp/ray/session_latest/metrics/grafana/grafana.ini web
     ```
 
-3. Lastly, start Ray with :
+    or alternatively, using podman:
 
     ```sh
-    RAY_GRAFANA_HOST=http://localhost:3000 RAY_PROMETHEUS_HOST=http://localhost:9090 ray start --head
+    podman run -d --name grafana --network host \
+        -e GF_SERVER_HTTP_PORT=3000 \ 
+        -v /tmp/ray:/tmp/ray:ro \
+        -v /tmp/ray/session_latest/metrics/grafana/grafana.ini:/etc/grafana/grafana.ini:ro \
+        -v /tmp/ray/session_latest/metrics/grafana/provisioning:/etc/grafana/provisioning:ro \
+        docker.io/grafana/grafana
     ```
+
+
+3. Lastly, start Ray with metrics visualization:
+
+    ```sh
+    RAY_GRAFANA_HOST=http://localhost:3000 RAY_GRAFANA_IFRAME_HOST=http://localhost:3000 RAY_PROMETHEUS_HOST=http://localhost:9090 ray start --head --dashboard-host=0.0.0.0 
+    ```
+
+...and visit the Grafana at http://localhost:3000
 
 ### Running Local MLflow 
 
 This demo assumes that there is a running instance of MLflow server that would serve as the ML model registry. This MLflow server needs to be network-accessible by the Ray Clusters.
 
 For development, you can run a MLflow server using Podman in the same network as the Ray Clusters:
-```sh
-podman network create mlray-net
-podman run -d --name mlflow-server --network mlray-net -p 8080:8080 ghcr.io/mlflow/mlflow \
-  mlflow server --host 0.0.0.0 --port 8080
-```
+
+    ```sh
+    podman network create mlray-net
+    podman run -d --name mlflow-server --network mlray-net -p 8080:8080 ghcr.io/mlflow/mlflow \
+    mlflow server --host 0.0.0.0 --port 8080
+    ```
 ...and visit MLflow's web UI at http://localhost:8080.
 
 ### Deploying Trained Models
