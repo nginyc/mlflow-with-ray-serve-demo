@@ -14,10 +14,10 @@ spec:
             resources:
               limits:
                 cpu: 2
-                memory: 2Gi
+                memory: 4Gi
               requests:
                 cpu: 2
-                memory: 2Gi
+                memory: 4Gi
     rayVersion: 2.47.1
     workerGroupSpecs:
     - groupName: small-group
@@ -32,10 +32,10 @@ spec:
             name: ray-worker
             resources:
               limits:
-                cpu: '1'
+                cpu: 1
                 memory: 2Gi
               requests:
-                cpu: 500m
+                cpu: 1
                 memory: 2Gi
   serveConfigV2: |
     applications:
