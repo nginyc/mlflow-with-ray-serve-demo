@@ -93,8 +93,8 @@ spec:
           num_cpus: 0.5
           memory: 1.0
         user_config: null
-    - name: iris_classifier-py312-xgboost
-      route_prefix: /iris_classifier-py312-xgboost
+    - name: iris_classifier-py312-xgboost2
+      route_prefix: /iris_classifier-py312-xgboost2
       import_path: mlray.app:app
       runtime_env:
         working_dir: https://github.com/nginyc/mlray-demo/archive/refs/heads/main.zip

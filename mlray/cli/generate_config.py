@@ -140,8 +140,8 @@ def build_ray_serve_config_application(
 
     target_ongoing_requests = max_batch_size if should_batch else 2
     max_ongoing_requests = max(round(target_ongoing_requests * 1.2), target_ongoing_requests + 1)
-    min_replicas = model.min_replicas if model.min_replicas else 1
-    max_replicas = model.max_replicas if model.max_replicas else 100
+    min_replicas = model.min_replicas if model.min_replicas is not None else 1
+    max_replicas = model.max_replicas if model.max_replicas is not None else 100
 
     # This points to `mlray/app.py` or `mlray/batching_app.py.py` 
     import_path = f"mlray.batching_app:app" if should_batch else f"mlray.app:app"
