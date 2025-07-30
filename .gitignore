@@ -10,5 +10,6 @@ mlartifacts/
 catboost_info/
 *.egg-info
 config.yml
+*.serve_config.yml
 .mlray/
 data/

@@ -1,0 +1,136 @@
+apiVersion: ray.io/v1
+kind: RayService
+metadata:
+  name: rayservice-py312
+spec:
+  rayClusterConfig:
+    headGroupSpec:
+      rayStartParams: {}
+      template:
+        spec:
+          containers:
+          - image: rayproject/ray:2.47.1-py312
+            name: ray-head
+            resources:
+              limits:
+                cpu: 2
+                memory: 2Gi
+              requests:
+                cpu: 2
+                memory: 2Gi
+    rayVersion: 2.47.1
+    workerGroupSpecs:
+    - groupName: small-group
+      maxReplicas: 5
+      minReplicas: 1
+      rayStartParams: {}
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - image: rayproject/ray:2.47.1-py312
+            name: ray-worker
+            resources:
+              limits:
+                cpu: '1'
+                memory: 2Gi
+              requests:
+                cpu: 500m
+                memory: 2Gis
+  serveConfigV2: |
+    applications:
+    - name: iris_classifier-py312-catboost
+      route_prefix: /iris_classifier-py312-catboost
+      import_path: mlray.app:app
+      runtime_env:
+        working_dir: https://github.com/nginyc/mlray-demo/archive/refs/heads/main.zip
+        env_vars:
+          MLFLOW_TRACKING_URI: http://192.168.10.65:8080
+          MODEL_URI: mlflow-artifacts:/845806305527103591/models/m-c86794d03b0846349e471723c726fbe6/artifacts
+        pip:
+        - mlflow==3.1.4
+        - catboost==1.2.8
+        - ipython==9.4.0
+        - numpy==2.3.2
+        - pandas==2.3.1
+        - scipy==1.16.1
+      deployments:
+      - name: App
+        max_ongoing_requests: 3
+        autoscaling_config:
+          target_ongoing_requests: 2
+          min_replicas: 1
+          max_replicas: 2
+        ray_actor_options:
+          num_cpus: 0.5
+          memory: 1.0
+        user_config: null
+    - name: iris_classifier-py312-xgboost1
+      route_prefix: /iris_classifier-py312-xgboost1
+      import_path: mlray.app:app
+      runtime_env:
+        working_dir: https://github.com/nginyc/mlray-demo/archive/refs/heads/main.zip
+        env_vars:
+          MLFLOW_TRACKING_URI: http://192.168.10.65:8080
+          MODEL_URI: mlflow-artifacts:/845806305527103591/models/m-f1c40b94d5d349938b12851025c37b97/artifacts
+        pip:
+        - mlflow==3.1.4
+        - numpy==2.3.2
+        - pandas==2.3.1
+        - psutil==7.0.0
+        - pyarrow==20.0.0
+        - scikit-learn==1.7.1
+        - scipy==1.16.1
+        - xgboost==1.7.6
+      deployments:
+      - name: App
+        max_ongoing_requests: 3
+        autoscaling_config:
+          target_ongoing_requests: 2
+          min_replicas: 1
+          max_replicas: 2
+        ray_actor_options:
+          num_cpus: 0.5
+          memory: 1.0
+        user_config: null
+    - name: iris_classifier-py312-xgboost
+      route_prefix: /iris_classifier-py312-xgboost
+      import_path: mlray.app:app
+      runtime_env:
+        working_dir: https://github.com/nginyc/mlray-demo/archive/refs/heads/main.zip
+        env_vars:
+          MLFLOW_TRACKING_URI: http://192.168.10.65:8080
+          MODEL_URI: mlflow-artifacts:/845806305527103591/models/m-ded5343548144e8299c0bd8abe13158a/artifacts
+        pip:
+        - mlflow==3.1.4
+        - numpy==2.3.2
+        - pandas==2.3.1
+        - psutil==7.0.0
+        - pyarrow==20.0.0
+        - scikit-learn==1.7.1
+        - scipy==1.16.1
+        - xgboost==2.1.4
+      deployments:
+      - name: App
+        max_ongoing_requests: 3
+        autoscaling_config:
+          target_ongoing_requests: 2
+          min_replicas: 1
+          max_replicas: 2
+        ray_actor_options:
+          num_cpus: 0.5
+          memory: 1.0
+        user_config: null
+    grpc_options:
+      grpc_servicer_functions: []
+      port: 9000
+    http_options:
+      host: 0.0.0.0
+      port: 8000
+    logging_config:
+      additional_log_standard_attrs: []
+      enable_access_log: true
+      encoding: TEXT
+      log_level: INFO
+      logs_dir: null
+    proxy_location: EveryNode

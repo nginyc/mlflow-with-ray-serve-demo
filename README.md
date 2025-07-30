@@ -1,6 +1,8 @@
 # MLflow x Ray Serve (MLRay) Demo
 
-This is a demo of how [MLflow](https://mlflow.org/) models can be deployed with [Ray Serve](https://docs.ray.io/en/latest/serve/index.html) running on Ray Clusters deployed on your own VMs. Multiple major Python versions are supported by running multiple Ray Clusters.
+This is a demo of how [MLflow](https://mlflow.org/) models can be deployed with [Ray Serve](https://docs.ray.io/en/latest/serve/index.html) running on a Ray Cluster deployed on your own VMs.
+
+> Each Ray Cluster assumes the same major Python version and Ray version across all its tasks/deployments (see [Ray's documentation on Environment Dependencies](https://docs.ray.io/en/latest/ray-core/handling-dependencies.html)). The Ray team recommends multiple Ray Clusters for each major Python version to be supported (see [Ray's discussion forum](https://discuss.ray.io/t/how-to-use-different-python-versions-in-the-same-cluster/15825)).
 
 ## Setting Up for Development
 
@@ -30,9 +32,9 @@ This is a demo of how [MLflow](https://mlflow.org/) models can be deployed with 
 
 Run a single-node setup locally without metrics visualization with:
 
-    ```sh
-    ray start --head --dashboard-host=0.0.0.0 
-    ```
+```sh
+ray start --head --dashboard-host=0.0.0.0 
+```
 
 ...and visit Ray Dashboard at http://localhost:8265.
 
@@ -77,18 +79,18 @@ This demo assumes that there is a running instance of MLflow server that would s
 
 For development, you can run a MLflow server using Podman in the same network as the Ray Clusters:
 
-    ```sh
-    podman network create mlray-net
-    podman run -d --name mlflow-server --network mlray-net -p 8080:8080 ghcr.io/mlflow/mlflow \
-    mlflow server --host 0.0.0.0 --port 8080
-    ```
+```sh
+podman network create mlray-net
+podman run -d --name mlflow-server --network mlray-net -p 8080:8080 ghcr.io/mlflow/mlflow \
+mlflow server --host 0.0.0.0 --port 8080
+```
 ...and visit MLflow's web UI at http://localhost:8080.
 
 ### Deploying Trained Models
 
-We demonstrate training and deploying ML models with conflicting library versions and Python versions.
+We demonstrate training and deploying ML models with conflicting library versions.
 
-1. Set up a virtual environment for each Python version to test with `pyenv`
+1. Set up a virtual environment with `pyenv`
 
     For example, set it up for `3.12.11`:
     ```sh
@@ -97,43 +99,36 @@ We demonstrate training and deploying ML models with conflicting library version
     python -m venv .venv.py312/
     ```
 
-    ...and set it up for `3.9.22`:
-    ```sh
-    pyenv install 3.9.22
-    pyenv shell 3.9.22
-    python -m venv .venv.py39/
-    ```
-
-    These versions need to match the respective Ray Clusters', down to the patch number.
+    > Note that these versions need to match the Ray Cluster, down to the patch number
 
 2. Copy `.env.template` as `.env` and configure the required environment variables
 
-3. Train different ML models with different library versions and Python versions, and log them all to MLflow:
+3. Train different ML models with different library versions, and log them all to MLflow:
 
-    For example, we train and log 3 models by running `train_catboost_model.ipynb` in the respective virtual environments after installing their required dependencies:
+    For example, we train and log 2 models by running `train_catboost_model.ipynb` in the virtual environment after installing their required dependencies:
 
-    1. The 1st model uses CatBoost 1.2 on Python 3.12, with its PIP requirements in `examples/requirements.iris_classifier-py312-catboost12.txt`
+    1. The 1st model uses CatBoost on Python 3.12, with its PIP requirements in `examples/requirements.iris_classifier-py312-catboost11.txt`
 
         ```sh
         source .venv.py312/bin/activate
-        pip install -r examples/requirements.iris_classifier-py312-catboost12.txt
+        pip install -r examples/requirements.iris_classifier-py312-catboost.txt
         # Now run `train_catboost_model.ipynb` with this Python kernel
         ```
 
-    2. The 2nd model uses CatBoost 1.2 on Python 3.9, with its PIP requirements in `examples/requirements.iris_classifier-py39-catboost12.txt`
+    2. The 2nd model uses Xgboost 1.X on Python 3.12, with its PIP requirements in `examples/requirements.iris_classifier-py312-xgboost1.txt`
 
         ```sh
-        source .venv.py39/bin/activate
-        pip install -r examples/requirements.iris_classifier-py39-catboost12.txt
-        # Now run `train_catboost_model.ipynb` with this Python kernel
+        source .venv.py312/bin/activate
+        pip install -r examples/requirements.iris_classifier-py312-xgboost1.txt
+        # Now run `train_xgboost_model.ipynb` with this Python kernel
         ```
 
-    3. The 3rd model uses CatBoost 1.1 on Python 3.9, with its PIP requirements in `examples/requirements.iris_classifier-py39-catboost11.txt`
+    2. The 3rd model uses Xgboost 2.X on Python 3.12, with its PIP requirements in `examples/requirements.iris_classifier-py312-xgboost2.txt`
 
         ```sh
-        source .venv.py39/bin/activate
-        pip install -r examples/requirements.iris_classifier-py39-catboost11.txt
-        # Now run `train_catboost_model.ipynb` with this Python kernel
+        source .venv.py312/bin/activate
+        pip install -r examples/requirements.iris_classifier-py312-xgboost2.txt
+        # Now run `train_xgboost_model.ipynb` with this Python kernel
         ```
 
     > MLflow automatically [infers the required dependencies](https://mlflow.org/docs/latest/ml/model/dependencies) of the trained model when the `log_model(model)` method is called. 
@@ -142,39 +137,51 @@ We demonstrate training and deploying ML models with conflicting library version
 
 4. On MLflow, for each model that is to be deployed, [register each model](https://mlflow.org/docs/latest/ml/model-registry) with a `.staging` suffix in their name, and promote a trained model version under the registered model
 
-    For example, register a model each for `iris_classifier-py312-catboost12.staging`, `iris_classifier-py39-catboost12.staging`, `iris_classifier-py39-catboost11.staging` based on the trained models in the previous step
+    For example, register a model each for `iris_classifier-py312-catboost.staging`, `iris_classifier-py312-xgboost1.staging` and `iris_classifier-py312-xgboost2.staging` based on the trained models in the previous step
 
     ![](examples/mlflow_registered_models.png)
 
     4. For each registered model to be deployed, add the following tags to configure their corresponding [Ray Serve deployments](https://docs.ray.io/en/latest/serve/configure-serve-deployment.html):
 
-    | **Tag**                                   | **Required** | **Example**                        | **Description**                        |
-    |:------------------------------------------|:------------:|:-----------------------------------|:---------------------------------------|
-    | `ray.name`                               | Yes          | `iris_classifier-py39-catboost11`  | Name of the deployment                 |
-    | `ray.ray_actor_options.num_cpus`         | Yes          | `0.5`                              | Number of CPUs per replica             |
-    | `ray.ray_actor_options.memory`           | Yes          | `1`                                | Memory in GB per replica               |
-    | `ray.ray_actor_options.runtime_env.env_vars` | No       | `{"ENV_VAR": "value"}`             | Environment variables for deployment   |
-    | `ray.autoscaling_config.min_replicas` | No       | `1`             | Min. no. of replicas for the deployment. Default value: 1 |
-    | `ray.autoscaling_config.max_replicas` | No       | `100`             | Max. no. of replicas for the deployment. Default value: 100 |
-    | `ray.user_config.max_batch_size`           | No          | `8`                                | Max batch size for [Ray Serve dynamic request batching](https://docs.ray.io/en/latest/serve/advanced-guides/dyn-req-batch.html). Request batching is disabled unless this is specified. |
-    | `ray.autoscaling_config.target_ongoing_requests` | No       | `2`             | Average no. of ongoing requests per replica that the [Ray Serve autoscaler](https://docs.ray.io/en/latest/serve/autoscaling-guide.html) tries to ensure. Default value: 2 if batching is disabled, otherwise max batch size |
+    | **Tag** | **Required** | **Example** | **Description** |
+    |:--------|:------------:|:------------|:----------------|
+    | `ray.name` | Yes | `iris_classifier-py312-catboost` | Name of the deployment |
+    | `ray.ray_actor_options.num_cpus` | Yes | `0.5` | Number of CPUs per replica |
+    | `ray.ray_actor_options.memory` | Yes | `1` | Memory in GB per replica |
+    | `ray.ray_actor_options.runtime_env.env_vars` | No | `{"ENV_VAR": "value"}` | Environment variables for deployment |
+    | `ray.autoscaling_config.min_replicas` | No | `1` | Min. no. of replicas for the deployment.<br/>Default value: 1 |
+    | `ray.autoscaling_config.max_replicas` | No | `100` | Max. no. of replicas for the deployment.<br/>Default value: 100 |
+    | `ray.user_config.max_batch_size` | No | `8` | Max batch size for [Ray Serve dynamic request batching](https://docs.ray.io/en/latest/serve/advanced-guides/dyn-req-batch.html).<br/>Request batching is disabled unless this is specified. |
+    | `ray.autoscaling_config.target_ongoing_requests` | No | `2` | Average no. of ongoing requests per replica that the [Ray Serve autoscaler](https://docs.ray.io/en/latest/serve/autoscaling-guide.html) tries to ensure.<br/>Default value: 2 if batching is disabled, otherwise max batch size |
 
 5. Copy `config.example.yml` to `config.yml` and update the configuration as necessary
 
-6. Run the `mlray deploy` command to deploy the registered models in the MLflow model registry for each Ray Cluster e.g.:
+6. Run the `mlray generate-config` command to generate the corresponding Ray Serve config file or update a given Kubernetes custom resource YAML with the Ray Serve config e.g.:
 
     ```sh
-    mlray deploy config.yml ray-cluster-py39
-    mlray deploy config.yml ray-cluster-py312
+    # For deploying directly to a Ray Cluster
+    mlray generate-config config.yml --serve_config_path=py312.serve_config.yml
+
+    # For deploying on Kubernetes via KubeRay
+    # Be sure to update the Kubernetes YAML configuration at examples/rayservice-py312.kuberay.yml first
+    mlray generate-config config.yml --kuberay_config_path=examples/rayservice-py312.kuberay.yml
+    ```
+
+    > For each model, this command reads from `python_env.yml` and `requirements.txt` in the [MLflow model artifact](https://mlflow.org/docs/latest/ml/model/dependencies) to determine its required Python version and PIP dependencies for Ray Serve. It also reads from each model's tags to configure the Ray Serve deployment.
+
+7. Deploy the Ray Serve config e.g.:
+
+    ```sh
+    # Deploy directly to a Ray Cluster
+    RAY_DASHBOARD_ADDRESS=http://localhost:8265 serve deploy py312.serve_config.yml
+
+    # Deploy on Kubernetes via KubeRay
+    kubectl apply -f examples/rayservice-py312.kuberay.yml
     ```
 
     Check the respective Ray dashboards to check on the status of the deployments.
 
     ![](examples/ray_serve_deployments.png)
-
-    > For each model, this command reads from `python_env.yml` and `requirements.txt` in the [MLflow model artifact](https://mlflow.org/docs/latest/ml/model/dependencies) to determine its required Python version and PIP dependencies for Ray Serve. It also reads from each model's tags to configure the Ray Serve deployment.
-    
-    > Note: If you are running this demo fully locally on Apple Silicon (ARM64) on Podman, you would encounter the error that `catboost==1.1` cannot be installed on the Python 3.9 Ray Cluster. This is because your Ray Cluster would be running on ARM64 version of Ubuntu (to match the host machine's architecture) and CatBoost 1.1 does not have the Linux wheels for the ARM64 architecture :(
 
 
 7. Verify that the model serving endpoints are working with e.g. REST requests like those in `examples/xxx.request.http`
@@ -182,15 +189,16 @@ We demonstrate training and deploying ML models with conflicting library version
     ![](examples/model_http_request.png)
 
 
-## Running Multi-Node Ray Cluster(s) 
+## Running Multi-Node Ray Cluster without Kubernetes
 
 ### Overview
 
-Each Ray Cluster assumes the same major Python version and Ray version across all its tasks/deployments (see [Ray's documentation on Environment Dependencies](https://docs.ray.io/en/latest/ray-core/handling-dependencies.html)). The Ray team recommends multiple Ray Clusters for each major Python version to be supported (see [Ray's discussion forum](https://discuss.ray.io/t/how-to-use-different-python-versions-in-the-same-cluster/15825)).
+You can run a multi-node Ray Cluster without Kubernetes, and use the instructions on "Deploying Trained Models" to deploy models from MLflow onto Ray Serve.
 
-**Pre-requisites**
-- A list of Python versions to be supported (e.g. `3.9.22` and `3.12.11`)
-- Multiple VM(s) with network connectivity with the internet and with one another. There should also be at least as many VM(s) as Python versions
+>  However, note that without Kubernetes, this Ray Cluster has limited [fault tolerance features](https://docs.ray.io/en/latest/serve/production-guide/fault-tolerance.html).
+
+
+For development and testing, you can do this on a single machine. Otherwise, you run the Ray Cluster on actual VMs.
 
 ### On a single machine using Podman
 
@@ -224,7 +232,7 @@ For development & testing, you can emulate multiple Linux VM(s) on a single mach
 
 ### On actual VMs
 
-> This demo was tested on Ubuntu 24.04 (LTS) VMs
+> This was tested on Ubuntu 24.04 (LTS) VMs
 
 1. On each VM, install [pyenv](https://github.com/pyenv/pyenv), and ensure shims are set up and shell function is installed such that `pyenv shell` works:
 
@@ -263,3 +271,40 @@ For development & testing, you can emulate multiple Linux VM(s) on a single mach
         ```sh
         ray start --address=<head-node-address>:6379
         ```
+
+## Deploying Models on Kubernetes
+
+With a Kubernetes cluster, Ray Serve has enhanced high availability, such as [worker/head node recovery](https://docs.ray.io/en/latest/serve/production-guide/fault-tolerance.html).
+
+To deploy models on Kubernetes, you would need to:
+1. Get access to or set up a Kubernetes cluster
+2. Install the KubeRay operator (to get the `RayService` custom resource definition on Kubernetes)
+
+### Setting up a Kubernetes cluster
+
+If you don't have a ready Kuberneters cluster, you can consider using [kind](https://kind.sigs.k8s.io/) or [k3s](https://docs.k3s.io/).
+
+### Installing the KubeRay operator
+
+Install the [KubeRay operator](https://github.com/ray-project/kuberay), which offers 3 custom resource definitions (CRDs) for Kubernetes: `RayCluster`, `RayJob` and `RayService`. For serving models, we would rely on the `RayService` CRD. 
+
+To install KubeRay, you can follow [the official documentation](https://docs.ray.io/en/latest/cluster/kubernetes/getting-started/kuberay-operator-installation.html) or follow these instructions:
+
+1. Install [helm](https://helm.sh/docs/intro/install/) for the Kubernetes cluster
+
+2. Run the following:
+    ```sh
+    helm repo add kuberay https://ray-project.github.io/kuberay-helm/
+    helm repo update
+    # Install both CRDs and KubeRay operator v1.4.0.
+    helm install kuberay-operator kuberay/kuberay-operator --version 1.4.0
+    ```
+
+3. Verify that operator is running in the namespace `default`:
+    ```sh
+    kubectl get pods
+    ```
+    ```sh
+    NAME                                READY   STATUS    RESTARTS   AGE
+    kuberay-operator-6bc45dd644-gwtqv   1/1     Running   0          24s
+    ```

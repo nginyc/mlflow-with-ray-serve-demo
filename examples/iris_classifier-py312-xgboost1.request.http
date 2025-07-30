@@ -1,4 +1,4 @@
-POST http://localhost:8000/iris_classifier-py39-catboost12
+POST http://localhost:8000/iris_classifier-py312-xgboost1
 Content-Type: application/json
 
 {

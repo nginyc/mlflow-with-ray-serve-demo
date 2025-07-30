@@ -5,17 +5,12 @@ readme = "README.md"
 requires-python = ">=3.7"
 dependencies = [
     "mlflow",
-    "pandas",
-    "scikit-learn",
     "ipykernel",
     "virtualenv",
     "python-dotenv",
-    "catboost",
-    "torch",
     "ray[serve]",
     "pip",
     "pydantic",
-    "transformers",
     "starlette",
     "boto3",
 ]
