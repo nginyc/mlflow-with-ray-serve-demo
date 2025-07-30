@@ -14,11 +14,11 @@ spec:
             name: ray-head
             resources:
               limits:
-                cpu: 1
-                memory: 2Gi
+                cpu: 2
+                memory: 4Gi
               requests:
-                cpu: 1
-                memory: 2Gi
+                cpu: 2
+                memory: 4Gi
     rayVersion: 2.47.1
     workerGroupSpecs:
     - groupName: small-group
@@ -33,11 +33,11 @@ spec:
             name: ray-worker
             resources:
               limits:
-                cpu: 1
-                memory: 2Gi
+                cpu: 2
+                memory: 4Gi
               requests:
-                cpu: 1
-                memory: 2Gi
+                cpu: 2
+                memory: 4Gi
   serveConfigV2: |
     applications:
     - name: iris_classifier-py312-catboost
