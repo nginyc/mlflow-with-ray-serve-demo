@@ -180,6 +180,11 @@ We demonstrate training and deploying ML models with conflicting library version
 
     ![](examples/model_http_request.png)
 
+    For Kubernetes, to access the Ray Dashboard and Ray Serve endpoints from localhost, you would need to `kubectl port-forward` first:
+    ```sh
+    kubectl port-forward service/rayservice-py312-head-svc 8265 &
+    kubectl port-forward service/rayservice-py312-serve-svc 8000 &
+    ```
 
 ## Running Multi-Node Ray Cluster without Kubernetes
 
@@ -293,3 +298,7 @@ To install KubeRay, you can follow [the official documentation](https://docs.ray
     NAME                                READY   STATUS    RESTARTS   AGE
     kuberay-operator-6bc45dd644-gwtqv   1/1     Running   0          24s
     ```
+
+## Deploying Models
+
+Follow the instructions for Kubernetes under "Deploying Trained Models".
