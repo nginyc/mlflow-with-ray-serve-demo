@@ -204,29 +204,24 @@ For development and testing, you can do this on a single machine. Otherwise, you
 
 For development & testing, you can emulate multiple Linux VM(s) on a single machine with [Podman](https://podman.io/) instead.
 
-1. Build a Docker image for each Python version e.g.:
+1. Build a Docker image for the Python version e.g.:
     ```sh
-    podman build -f docker/ray-serve-py39.Dockerfile -t ray-serve-py39 .
     podman build -f docker/ray-serve-py312.Dockerfile -t ray-serve-py312 .
     ```
 
-2. Run a Ray head node for each Python version e.g.: 
+2. Run a Ray head node for the Python version e.g.: 
 
     ```sh
     podman network create mlray-net
-    podman run --name ray-head-py39 --network mlray-net --cpus=2 --memory=4g -p 8265:8265 -p 6379:6379 -p 10001:10001 -p 8000:8000 -d ray-serve-py39 \
-        bash -c "ray start --head --num-cpus=2 --memory=4096 --port=6379 --dashboard-host=0.0.0.0 && tail -f /dev/null"
-
-    podman run --name ray-head-py312 --network mlray-net --cpus=2 --memory=4g -p 8266:8265 -p 6380:6379 -p 10002:10001 -p 8001:8000 -d ray-serve-py312 \
+    podman run --name ray-head-py312 --network mlray-net --cpus=2 --memory=4g -p 8265:8265 -p 6379:6379 -p 10001:10001 -p 8000:8000 -d ray-serve-py312 \
         bash -c "ray start --head --num-cpus=2 --memory=4096 --port=6379 --dashboard-host=0.0.0.0 && tail -f /dev/null"
     ```
 
     With the above example, you can visit the respective Ray dashboards on your browser with http://localhost:8265 and http://localhost:8266.
 
-3. If desired, run a Ray worker node for each Python version as well e.g.:
+3. If desired, run a Ray worker node for the Python version as well e.g.:
 
     ```sh
-    podman run --name ray-worker-py39 --network mlray-net --cpus=2 --memory=4g -d ray-serve-py39 bash -c "ray start --address=ray-head-py39:6379 --num-cpus=2 --memory=4096 && tail -f /dev/null"
     podman run --name ray-worker-py312 --network mlray-net --cpus=2 --memory=4g -d ray-serve-py312 bash -c "ray start --address=ray-head-py312:6379 --num-cpus=2 --memory=4096 && tail -f /dev/null"
     ```
 
@@ -243,34 +238,32 @@ For development & testing, you can emulate multiple Linux VM(s) on a single mach
 
 2. Clone this project's code on each VM
 
-3. For each Python version to be supported, at the root of the project's code:
 
-    1. On each VM, install the same Python version and activate it:
+3. On each VM, install the same Python version and activate it:
 
-        ```sh
-        pyenv install 3.9.22
-        pyenv shell 3.9.22
-        ```
+    ```sh
+    pyenv shell 3.12.11
+    ```
     
-    2. On each VM, install Ray Serve and MLflow using PIP, and ensure the version of Ray is the same across all VMs:
-        
-        ```sh
-        pip install -U "ray[serve]"
-        pip install -U mlflow boto3
-        ray --version
-        ```
-
-    3. On a single VM designated to be the Ray head node for the Ray Cluster uniquely associated with this Python version, [start a Ray head node](https://docs.ray.io/en/latest/cluster/vms/user-guides/launching-clusters/on-premises.html#start-the-head-node) via the [Ray Cluster Management CLI](https://docs.ray.io/en/latest/cluster/cli.html#ray-start)
-
-        ```sh
-        ray start --head --port=6379 --dashboard-host=0.0.0.0 
-        ```
-
-    4. For every other extra VM designated to Ray worker nodes for the Ray Cluster associated with this Python version, [start a Ray worker node](https://docs.ray.io/en/latest/cluster/vms/user-guides/launching-clusters/on-premises.html#start-worker-nodes) via the [Ray Cluster Management CLI](https://docs.ray.io/en/latest/cluster/cli.html#ray-start)
+4. On each VM, install Ray Serve and MLflow using PIP, and ensure the version of Ray is the same across all VMs:
     
-        ```sh
-        ray start --address=<head-node-address>:6379
-        ```
+    ```sh
+    pip install -U "ray[serve]"
+    pip install -U mlflow boto3
+    ray --version
+    ```
+
+5. On a single VM designated to be the Ray head node for the Ray Cluster, [start a Ray head node](https://docs.ray.io/en/latest/cluster/vms/user-guides/launching-clusters/on-premises.html#start-the-head-node) via the [Ray Cluster Management CLI](https://docs.ray.io/en/latest/cluster/cli.html#ray-start)
+
+    ```sh
+    ray start --head --port=6379 --dashboard-host=0.0.0.0 
+    ```
+
+6. For every other extra VM designated to Ray worker nodes for the Ray Cluster, [start a Ray worker node](https://docs.ray.io/en/latest/cluster/vms/user-guides/launching-clusters/on-premises.html#start-worker-nodes) via the [Ray Cluster Management CLI](https://docs.ray.io/en/latest/cluster/cli.html#ray-start)
+
+    ```sh
+    ray start --address=<head-node-address>:6379
+    ```
 
 ## Deploying Models on Kubernetes
 
