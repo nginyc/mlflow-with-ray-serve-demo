@@ -5,7 +5,8 @@ metadata:
 spec:
   rayClusterConfig:
     headGroupSpec:
-      rayStartParams: {}
+      rayStartParams:
+        num-cpus: "0"
       template:
         spec:
           containers:
