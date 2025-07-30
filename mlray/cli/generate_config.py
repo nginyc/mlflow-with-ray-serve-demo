@@ -145,6 +145,7 @@ def build_ray_serve_config_application(
     if model.min_replicas is not None:
         if model.min_replicas < 0:
             raise ValueError(f"min_replicas must be at least 0, got {model.min_replicas}")
+        min_replicas = model.min_replicas
     
     max_replicas = 100
     if model.max_replicas is not None:
