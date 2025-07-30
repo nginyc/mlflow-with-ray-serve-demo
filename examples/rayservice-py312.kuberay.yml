@@ -10,7 +10,7 @@ spec:
       template:
         spec:
           containers:
-          - image: rayproject/ray:2.47.1-py312
+          - image: rayproject/ray:2.46.0-py312
             name: ray-head
             resources:
               limits:
@@ -19,7 +19,7 @@ spec:
               requests:
                 cpu: 2
                 memory: 4Gi
-    rayVersion: 2.47.1
+    rayVersion: 2.46.0
     workerGroupSpecs:
     - groupName: small-group
       maxReplicas: 5
@@ -29,7 +29,7 @@ spec:
       template:
         spec:
           containers:
-          - image: rayproject/ray:2.47.1-py312
+          - image: rayproject/ray:2.46.0-py312
             name: ray-worker
             resources:
               limits:
