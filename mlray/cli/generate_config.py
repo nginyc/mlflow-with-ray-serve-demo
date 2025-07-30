@@ -105,7 +105,7 @@ def build_ray_serve_config(
     config: Config,
     deployable_models: list[DeployableModel]
 ):
-    print(f"Building Ray Serve config with {len(deployable_models)} deployable model(s)...")
+    print(f"Generating Ray Serve config with {len(deployable_models)} deployable model(s)...")
     applications = []
     for model in deployable_models:
         app = build_ray_serve_config_application(config, model)

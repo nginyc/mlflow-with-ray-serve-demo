@@ -105,17 +105,9 @@ We demonstrate training and deploying ML models with conflicting library version
 
 3. Train different ML models with different library versions, and log them all to MLflow:
 
-    For example, we train and log 2 models by running `train_catboost_model.ipynb` in the virtual environment after installing their required dependencies:
+    For example, we train and log 2 models by running `train_xgboost_model.ipynb` in the virtual environment after installing their required dependencies:
 
-    1. The 1st model uses CatBoost on Python 3.12, with its PIP requirements in `examples/requirements.iris_classifier-py312-catboost11.txt`
-
-        ```sh
-        source .venv.py312/bin/activate
-        pip install -r examples/requirements.iris_classifier-py312-catboost.txt
-        # Now run `train_catboost_model.ipynb` with this Python kernel
-        ```
-
-    2. The 2nd model uses Xgboost 1.X on Python 3.12, with its PIP requirements in `examples/requirements.iris_classifier-py312-xgboost1.txt`
+    1. The 1st model uses Xgboost 1.X on Python 3.12, with its PIP requirements in `examples/requirements.iris_classifier-py312-xgboost1.txt`
 
         ```sh
         source .venv.py312/bin/activate
@@ -123,7 +115,7 @@ We demonstrate training and deploying ML models with conflicting library version
         # Now run `train_xgboost_model.ipynb` with this Python kernel
         ```
 
-    2. The 3rd model uses Xgboost 2.X on Python 3.12, with its PIP requirements in `examples/requirements.iris_classifier-py312-xgboost2.txt`
+    2. The 2nd model uses Xgboost 2.X on Python 3.12, with its PIP requirements in `examples/requirements.iris_classifier-py312-xgboost2.txt`
 
         ```sh
         source .venv.py312/bin/activate
@@ -137,7 +129,7 @@ We demonstrate training and deploying ML models with conflicting library version
 
 4. On MLflow, for each model that is to be deployed, [register each model](https://mlflow.org/docs/latest/ml/model-registry) with a `.staging` suffix in their name, and promote a trained model version under the registered model
 
-    For example, register a model each for `iris_classifier-py312-catboost.staging`, `iris_classifier-py312-xgboost1.staging` and `iris_classifier-py312-xgboost2.staging` based on the trained models in the previous step
+    For example, register a model each for `iris_classifier-py312-xgboost1.staging` and `iris_classifier-py312-xgboost2.staging` based on the trained models in the previous step
 
     ![](examples/mlflow_registered_models.png)
 
@@ -145,7 +137,7 @@ We demonstrate training and deploying ML models with conflicting library version
 
     | **Tag** | **Required** | **Example** | **Description** |
     |:--------|:------------:|:------------|:----------------|
-    | `ray.name` | Yes | `iris_classifier-py312-catboost` | Name of the deployment |
+    | `ray.name` | Yes | `iris_classifier-py312-xgboost1` | Name of the deployment |
     | `ray.ray_actor_options.num_cpus` | Yes | `0.5` | Number of CPUs per replica |
     | `ray.ray_actor_options.memory` | Yes | `1` | Memory in GB per replica |
     | `ray.ray_actor_options.runtime_env.env_vars` | No | `{"ENV_VAR": "value"}` | Environment variables for deployment |
