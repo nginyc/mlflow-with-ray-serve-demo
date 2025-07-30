@@ -13,11 +13,11 @@ spec:
             name: ray-head
             resources:
               limits:
-                cpu: 2
-                memory: 4Gi
+                cpu: 1
+                memory: 2Gi
               requests:
-                cpu: 2
-                memory: 4Gi
+                cpu: 1
+                memory: 2Gi
     rayVersion: 2.47.1
     workerGroupSpecs:
     - groupName: small-group

@@ -140,8 +140,17 @@ def build_ray_serve_config_application(
 
     target_ongoing_requests = max_batch_size if should_batch else 2
     max_ongoing_requests = max(round(target_ongoing_requests * 1.2), target_ongoing_requests + 1)
-    min_replicas = model.min_replicas if model.min_replicas is not None else 1
-    max_replicas = model.max_replicas if model.max_replicas is not None else 100
+
+    min_replicas = 1
+    if model.min_replicas is not None:
+        if model.min_replicas < 0:
+            raise ValueError(f"min_replicas must be at least 0, got {model.min_replicas}")
+    
+    max_replicas = 100
+    if model.max_replicas is not None:
+        if model.max_replicas < 1:
+            raise ValueError(f"max_replicas must be at least 1, got {model.max_replicas}")
+        max_replicas = model.max_replicas
 
     # This points to `mlray/app.py` or `mlray/batching_app.py.py` 
     import_path = f"mlray.batching_app:app" if should_batch else f"mlray.app:app"
