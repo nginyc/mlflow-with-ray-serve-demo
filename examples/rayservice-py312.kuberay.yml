@@ -36,7 +36,7 @@ spec:
                 memory: 2Gi
               requests:
                 cpu: 500m
-                memory: 2Gis
+                memory: 2Gi
   serveConfigV2: |
     applications:
     - name: iris_classifier-py312-catboost
