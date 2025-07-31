@@ -6,7 +6,7 @@ spec:
   rayClusterConfig:
     headGroupSpec:
       rayStartParams:
-        num-cpus: "0"
+        num-cpus: '0'
       template:
         spec:
           containers:
@@ -33,39 +33,13 @@ spec:
             name: ray-worker
             resources:
               limits:
-                cpu: 2
-                memory: 4Gi
+                cpu: 1
+                memory: 2Gi
               requests:
-                cpu: 2
-                memory: 4Gi
+                cpu: 1
+                memory: 2Gi
   serveConfigV2: |
     applications:
-    - name: iris_classifier-py312-catboost
-      route_prefix: /iris_classifier-py312-catboost
-      import_path: mlray.app:app
-      runtime_env:
-        working_dir: https://github.com/nginyc/mlray-demo/archive/refs/heads/main.zip
-        env_vars:
-          MLFLOW_TRACKING_URI: http://192.168.10.65:8080
-          MODEL_URI: mlflow-artifacts:/845806305527103591/models/m-c86794d03b0846349e471723c726fbe6/artifacts
-        pip:
-        - mlflow==3.1.4
-        - catboost==1.2.8
-        - ipython==9.4.0
-        - numpy==2.3.2
-        - pandas==2.3.1
-        - scipy==1.16.1
-      deployments:
-      - name: App
-        max_ongoing_requests: 3
-        autoscaling_config:
-          target_ongoing_requests: 2
-          min_replicas: 1
-          max_replicas: 2
-        ray_actor_options:
-          num_cpus: 0.5
-          memory: 1.0
-        user_config: null
     - name: iris_classifier-py312-xgboost1
       route_prefix: /iris_classifier-py312-xgboost1
       import_path: mlray.app:app
@@ -88,7 +62,7 @@ spec:
         max_ongoing_requests: 3
         autoscaling_config:
           target_ongoing_requests: 2
-          min_replicas: 1
+          min_replicas: 0
           max_replicas: 2
         ray_actor_options:
           num_cpus: 0.5
