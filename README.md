@@ -302,3 +302,5 @@ To install KubeRay, you can follow [the official documentation](https://docs.ray
 ## Deploying Models
 
 Follow the instructions for Kubernetes under "Deploying Trained Models".
+
+Refer to `examples/rayservice-py312.kuberay.yml` for an example Kuberentes config YAML for KubeRay. To understand how to customize the config YAML, refer to [KubeRay's config samples](https://github.com/ray-project/kuberay/tree/master/ray-operator/config/samples) and [KubeRay's API reference](https://ray-project.github.io/kuberay/reference/api/).
