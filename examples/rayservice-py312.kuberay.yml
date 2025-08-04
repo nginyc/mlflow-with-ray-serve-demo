@@ -4,6 +4,8 @@ metadata:
   name: rayservice-py312
 spec:
   rayClusterConfig:
+    rayVersion: 2.47.1
+    enableInTreeAutoscaling: true
     headGroupSpec:
       rayStartParams:
         num-cpus: '0'
@@ -19,7 +21,6 @@ spec:
               requests:
                 cpu: 2
                 memory: 4Gi
-    rayVersion: 2.47.1
     workerGroupSpecs:
     - groupName: small-group
       maxReplicas: 5
