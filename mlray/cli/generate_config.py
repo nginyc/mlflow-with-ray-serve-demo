@@ -169,6 +169,7 @@ def build_ray_serve_config_application(
             "env_vars": {
                 'MLFLOW_TRACKING_URI': config.mlflow_tracking_uri,
                 'MODEL_URI': model.model_uri,
+                **config.env_vars,
                 **model.env_vars,
             },
             "pip": model.pip_requirements,
