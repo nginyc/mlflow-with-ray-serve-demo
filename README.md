@@ -148,14 +148,15 @@ We demonstrate training and deploying ML models with conflicting library version
 
 5. Copy `config.example.yml` to `config.yml` and update the configuration as necessary
 
-6. Run the `mlray generate-config` command to generate the corresponding Ray Serve config file or update a given Kubernetes custom resource YAML with the Ray Serve config e.g.:
+6. Run the `mlray generate-config` command to generate the corresponding [Ray Serve config](https://docs.ray.io/en/latest/serve/production-guide/config.html) file or update a given Kubernetes custom resource YAML with the Ray Serve config e.g.:
 
     ```sh
     # For deploying directly to a Ray Cluster
+    # You can preview the generated Ray Service config at `py312.serve_config.yml`
     mlray generate-config config.yml --serve_config_path=py312.serve_config.yml
 
     # For deploying on Kubernetes via KubeRay
-    # Be sure to update the Kubernetes YAML configuration at examples/rayservice-py312.kuberay.yml first
+    # Be sure to tweak the Kubernetes YAML config at examples/rayservice-py312.kuberay.yml first based on your resource requirements
     mlray generate-config config.yml --kuberay_config_path=examples/rayservice-py312.kuberay.yml
     ```
 
@@ -268,7 +269,10 @@ With a Kubernetes cluster, Ray Serve has enhanced high availability, such as [wo
 
 To deploy models on Kubernetes, you would need to:
 1. Get access to or set up a Kubernetes cluster
-2. Install the KubeRay operator (to get the `RayService` custom resource definition on Kubernetes)
+2. Install the [KubeRay operator](https://docs.ray.io/en/latest/cluster/kubernetes/getting-started.html) (to get the `RayService` custom resource definition on Kubernetes)
+3. Simply deploy a `RayService` custom resource on the Kubernetes cluster with the right Ray Serve config. This custom resource would in turn creates the right Kubernetes pods and services for the Ray Cluster head, workers, Ray Serve, etc
+
+You can also refer to Ray's documentation [*Deploy on Kubernetes*](https://docs.ray.io/en/latest/serve/production-guide/kubernetes.html).
 
 ### Setting up a Kubernetes cluster
 
