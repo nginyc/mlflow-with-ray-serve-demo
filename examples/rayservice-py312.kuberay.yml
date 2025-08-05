@@ -21,6 +21,7 @@ spec:
               requests:
                 cpu: 2
                 memory: 4Gi
+    rayVersion: 2.47.1
     workerGroupSpecs:
     - groupName: small-group
       maxReplicas: 5
@@ -32,6 +33,20 @@ spec:
           containers:
           - image: rayproject/ray:2.47.1-py312
             name: ray-worker
+            # Uncomment the following lines to use MLflow with credentials
+            # You will need to create a Kubernetes secret
+            # ================================================
+            # env:
+            # - name: MLFLOW_TRACKING_USERNAME
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: mlflow-credentials
+            #       key: username
+            # - name: MLFLOW_TRACKING_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: mlflow-credentials
+            #       key: password
             resources:
               limits:
                 cpu: 1
