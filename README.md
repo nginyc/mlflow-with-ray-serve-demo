@@ -2,7 +2,11 @@
 
 This is a demo of how [MLflow](https://mlflow.org/) models can be deployed with [Ray Serve](https://docs.ray.io/en/latest/serve/index.html).
 
-Document is split into:
+![](/examples/mlflow_registered_models.png)
+
+![](/examples/ray_serve_deployments.png)
+
+This documentation is split into:
 - [Setting Up for Development](#setting-up-for-development)
 - [Preparing Models for Deployment](/docs/1_preparing-models-for-deployment.md)
 - [Deploying Models on Kubernetes](/docs/2_deploying-models-on-kubernetes.md)
@@ -45,16 +49,16 @@ Visit Ray Dashboard at http://localhost:8265.
 
 ### Running Local MLflow 
 
-This demo assumes that there is a running instance of MLflow server that would serve as the ML model registry. This MLflow server needs to be network-accessible by the Ray Clusters.
+This demo assumes that there is a running instance of MLflow server that would serve as the ML model registry. This MLflow server needs to be network-accessible by the Ray Cluster.
 
-For development, you can run a MLflow server using Podman in the same network as the Ray Clusters:
+For development, you can run a MLflow server using Podman:
 
 ```sh
 podman network create mlray-net
 podman run -d --name mlflow-server --network mlray-net -p 8080:8080 ghcr.io/mlflow/mlflow \
 mlflow server --host 0.0.0.0 --port 8080
 ```
-...and visit MLflow's web UI at http://localhost:8080.
+Visit MLflow's web UI at http://localhost:8080.
 
 ### Setting Up Config
 
