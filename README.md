@@ -65,3 +65,7 @@ Visit MLflow's web UI at http://localhost:8080.
 Copy `.env.template` as `.env` and configure the required environment variables. For example, `MLFLOW_TRACKING_URI` configures which instance of MLflow we connect to.
 
 Copy `config.example.yml` to `config.yml` and update the configuration as necessary. These configure how models are served on Ray Serve.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
