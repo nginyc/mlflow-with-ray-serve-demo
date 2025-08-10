@@ -1,4 +1,4 @@
-# MLflow x Ray Serve (MLRay) Demo
+# MLflow with Ray Serve Demo
 
 This is a demo of how [MLflow](https://mlflow.org/) models can be deployed with [Ray Serve](https://docs.ray.io/en/latest/serve/index.html).
 
