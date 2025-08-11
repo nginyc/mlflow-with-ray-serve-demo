@@ -93,6 +93,16 @@ class MlRayMlFlowClient:
             raise ValueError(f"Failed to load requirements.txt: {e}")
         
         pip_requirements = requirements_txt.splitlines() if requirements_txt else []
+
+        '''
+        As a safeguard against the error "numpy.core.multiarray failed to import", 
+            we force install pyarrow == 19.0.1 if pyarrow is not already in the requirements.
+        Refer to the related open issue at https://github.com/ray-project/ray/issues/48559
+        '''
+        has_pyarrow = any(req.startswith('pyarrow') for req in pip_requirements)
+        if not has_pyarrow:
+            pip_requirements.append('pyarrow==19.0.1')
+
         return _MlflowModelRequirements(
             python_version=python_version, 
             pip_requirements=pip_requirements
