@@ -35,6 +35,13 @@ For development & testing, you can emulate multiple Linux VM(s) on a single mach
     podman run --name ray-worker-py312 --network mlray-net --cpus=2 --memory=4g -d ray-serve-py312 bash -c "ray start --address=ray-head-py312:6379 --num-cpus=2 --memory=4096 && tail -f /dev/null"
     ```
 
+The MLflow instance needs to be network-accessible by the Ray Cluster nodes. You run a MLflow server using Podman in the same network like:
+
+```sh
+podman run -d --name mlflow-server --network mlray-net -p 8080:8080 ghcr.io/mlflow/mlflow \
+mlflow server --host 0.0.0.0 --port 8080
+```
+
 ## Setting up Ray Cluster on multiple VMs
 
 > This was tested on Ubuntu 24.04 (LTS) VMs

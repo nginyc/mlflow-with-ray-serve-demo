@@ -54,6 +54,12 @@ Then, simply apply this Kubernetes YAML to the Kubernetes cluster:
 kubectl apply -f examples/rayservice-py312.kuberay.yml
 ```
 
+To access the Ray Dashboard and Ray Serve endpoints from localhost, you may need to `kubectl port-forward` first e.g.:
+```sh
+kubectl port-forward service/rayservice-py312-head-svc 8265 &
+kubectl port-forward service/rayservice-py312-serve-svc 8000 &
+```
+
 Check the Ray dashboard to check on the status of the deployments. 
 
 ![](/examples/ray_serve_deployments.png)
@@ -62,12 +68,6 @@ You can verify that the model serving endpoints are working with e.g. REST reque
 
 ![](/examples/model_http_request.png)
 
-To access the Ray Dashboard and Ray Serve endpoints from localhost, you may need to `kubectl port-forward` first:
-```sh
-kubectl port-forward service/rayservice-py312-head-svc 8265 &
-kubectl port-forward service/rayservice-py312-serve-svc 8000 &
-```
-
 If [MLflow Authentication](https://mlflow.org/docs/latest/ml/auth/) is enabled, you need to uncomment the lines that provide `MLFLOW_TRACKING_USERNAME` and `MLFLOW_TRACKING_PASSWORD` to the Ray worker pods, and [create a `generic` Kubernetes secret](https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data) like:
 
 ```sh
@@ -75,3 +75,7 @@ kubectl create secret generic mlflow-credentials --from-literal=username='XXXXX'
 ```
 
 > To understand how to further customize the YAML, refer to [KubeRay's config samples](https://github.com/ray-project/kuberay/tree/master/ray-operator/config/samples) and [KubeRay's API reference](https://ray-project.github.io/kuberay/reference/api/).
+
+## Troubleshooting RayService
+
+Refer to Ray's [Troubleshooting guide](https://docs.ray.io/en/latest/cluster/kubernetes/troubleshooting/troubleshooting.html) and [RayService troubleshooting](https://docs.ray.io/en/latest/cluster/kubernetes/troubleshooting/rayservice-troubleshooting.html).
