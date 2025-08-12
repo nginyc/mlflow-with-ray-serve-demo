@@ -3,14 +3,15 @@
 ## How does auto-scaling work?
 
 On Ray Serve, there are two forms of auto-scaling:
-- **Replica-based**: When the current traffic for a model exceeds the the no. of target ongoing requests per replica, the Ray Serve Controller would increase the no. of replicas for that model if Ray worker nodes have enough capacity. This is known as [Ray Serve Autoscaling](https://docs.ray.io/en/latest/serve/autoscaling-guide.html), which is executed by the *Ray Serve Controller*
-- **Worker-based**: When the current traffic across all models causes replica-based auto-scaling requirements to exceed Ray worker nodes' resource capacity, the Ray Autoscaler would increase the no. of Ray worker nodes. This is known as [Ray Cluster Autoscaling](https://docs.ray.io/en/latest/cluster/key-concepts.html#id6), which is executed by the *Ray Autoscaler*
+- **Replica-based**: When the current traffic for a model exceeds the no. of target ongoing requests per replica, the *Ray Serve Controller* would increase the no. of replicas for that model if Ray worker nodes have enough capacity. This is known as [Ray Serve Autoscaling](https://docs.ray.io/en/latest/serve/autoscaling-guide.html)
+
+- **Worker-based**: When the current traffic across all models causes replica-based auto-scaling requirements to exceed Ray worker nodes' resource capacity, the *Ray Autoscaler* would increase the no. of Ray worker nodes. This is known as [Ray Cluster Autoscaling](https://docs.ray.io/en/latest/cluster/key-concepts.html#id6)
 
 ### Replica-based Autoscaling 
 
 Replica-based auto-scaling can be configured at a model-level with the tags `ray.autoscaling_config.*`. Refer to Ray's documentation on [Advanced Ray Serve Autoscaling](https://docs.ray.io/en/latest/serve/advanced-guides/advanced-autoscaling.html#serve-advanced-autoscaling) for more details.
 
-Ray Serve supports **scale-from-zero** models. These models have a minimum replica count of *zero*. They tend to be sparsely invoked and cld-start latencies are tolerable. When traffic arrives, the system would spin up the replicas to serve requests.
+Ray Serve supports **scale-from-zero** models. These models have a minimum replica count of *zero*. They tend to be sparsely invoked and cold-start latencies are tolerable. When traffic arrives, the system would spin up the replicas to serve requests.
 
 ### Worker-based Autoscaling 
 

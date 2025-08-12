@@ -84,7 +84,11 @@ mlflow server --host 0.0.0.0 --port 8080
 
 ## Deploying Models on Ray Cluster with Ray Serve
 
-First, run the `mlray generate-config` command to generate the [Ray Serve config](https://docs.ray.io/en/latest/serve/production-guide/config.html) file based on the tagged models on MLflow.
+First, run the `mlray generate-config` command to generate the [Ray Serve config](https://docs.ray.io/en/latest/serve/production-guide/config.html) file based on the tagged models on MLflow:
+
+```sh
+mlray generate-config config.yml --serve_config_path py312.serve_config.yml
+```
 
 > For each model, this command reads from `python_env.yml` and `requirements.txt` in the [MLflow model artifact](https://mlflow.org/docs/latest/ml/model/dependencies) to determine its required Python version and PIP dependencies for Ray Serve. It also reads from each model's tags to configure the Ray Serve deployment.
 
